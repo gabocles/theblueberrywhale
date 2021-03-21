@@ -1,0 +1,42 @@
+{% assign menu = linklists[section.settings.main_linklist] %}
+
+{% for link in menu.links %}
+
+  {% if link.links != blank %}
+    <li class="site-nav--has-dropdown" aria-haspopup="true">
+      <a href="{{ link.url }}" class="site-nav__link">
+        {{ link.title }}
+        <span class="icon-arrow-down" aria-hidden="true"></span>
+      </a>
+
+      <ul class="site-nav__dropdown">
+        {% for sub_link in link.links %}
+        {% if sub_link.levels > 0 %}
+            <li class="site-nav--has-dropdown" aria-haspopup="true">
+              <a href="{{ sub_link.url }}" class="site-nav__link">{{ sub_link.title | escape }}</a>
+              <ul class="site-nav__subdropdown">
+                {% for sub_sub_link in sub_link.links %}
+                  <li>
+                    <a href="{{ sub_sub_link.url }}" class="site-nav__link">{{ sub_sub_link.title | escape }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% else %}
+            <li>
+              <a href="{{ sub_link.url }}" class="site-nav__link">{{ sub_link.title | escape }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </li>
+
+    {% else %}
+
+    <li>
+      <a href="{{ link.url }}" class="site-nav__link">{{ link.title }}</a>
+    </li>
+
+  {% endif %}
+
+{% endfor %}

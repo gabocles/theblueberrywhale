@@ -1,0 +1,88 @@
+{% layout none %}
+{% assign limit = 10 %}
+{% assign product_count = 0 %}
+{% assign article_count = 0 %}
+{% assign page_count = 0 %}
+{% assign has_more = false %}
+{% assign first = true %}
+
+{% comment %}
+  Get first `limit` items from each category. `has_more` is true if some
+  result was filtered out because of the limit.
+{% endcomment %}
+
+
+{% capture results %}
+  {% paginate search.results by 9999 %}
+    {% for item in search.results %}
+      {% assign skip = false %}
+      {% assign price_html = "" %}
+      {% if item.object_type == 'article' %}
+        {% if article_count >= limit %}
+          {% assign skip = true %}
+        {% else %}
+          {% assign article_count = article_count | plus: 1 %}
+        {% endif %}
+      {% elsif item.object_type == 'page' %}
+        {% if page_count >= limit %}
+          {% assign skip = true %}
+        {% else %}
+          {% assign page_count = page_count | plus: 1 %}
+        {% endif %}
+      {% elsif item.object_type == 'product' %}
+        {% if product_count >= limit %}
+          {% assign skip = true %}
+        {% else %}
+          {% assign product_count = product_count | plus: 1 %}
+          {% assign product = item %}
+          {% capture price_html %}
+            {% include 'product-grid-item-price' %}
+          {% endcapture %}
+          {% capture unit_price_html %}
+          {% assign first_variant = product.variants[0] %}
+            {% include 'unit-price-measurement-variant', variant: first_variant %}
+          {% endcapture %}
+        {% endif %}
+      {% else %}
+        {% assign skip = true %}
+      {% endif %}
+
+      {% if skip %}
+        {% assign has_more = true %}
+      {% else %}
+        {% unless first %},{% endunless %}
+        {% assign first = false %}
+        {
+          "title": {{ item.title | json }},
+          {% if item.object_type == 'product' %}
+            "url": {{ item.url | within: product.collections.last | json }},
+          {% else %}
+            "url": {{ item.url | json }},
+          {% endif %}
+
+          {% if item.media and item.media.size > 0 %}
+          "image": {{ item.media[0].preview_image | product_img_url: '140x' | json }},
+          {% assign imageResponsive = item.media[0].preview_image | product_img_url: '1000x1000' | replace: '_1000x1000.', '_{width}.' %}
+          {% elsif item.featured_image.src %}
+          "image": {{ item.featured_image.src | product_img_url: '140x' | json }},
+          {% assign imageResponsive = item.featured_image.src | product_img_url: '1000x1000' | replace: '_1000x1000.', '_{width}.' %}
+          {% elsif item.object_type == 'article' and item.image %}
+          "image": "{{ item | img_url: '140x' }}",
+          {% assign imageResponsive = item | img_url: '1000x1000' | replace: '_1000x1000.', '_{width}.' %}
+          {% endif %}
+          "imageResponsive": {{ imageResponsive | json }},
+          "content": {{ item.content | strip_html | truncate: 100 | json }},
+          "type": "{{ item.object_type }}",
+          "price_html": {{ price_html | json }},
+          "unit_price_html": {{ unit_price_html | json }}
+        }
+      {% endif %}
+    {% endfor %}
+  {% endpaginate %}
+{% endcapture %}
+
+{
+  "terms": {{ search.terms | json }},
+  "has_more": {{ has_more | json }},
+  "results": [{{ results }}]
+}

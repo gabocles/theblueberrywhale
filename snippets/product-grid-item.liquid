@@ -1,0 +1,77 @@
+{% comment %}
+  Set the default grid_item_width if no variable is set
+{% endcomment %}
+{% unless grid_item_width %}
+  {% assign grid_item_width = 'large--one-third medium--one-half' %}
+{% endunless %}
+
+<div class="grid__item {{ grid_item_width }}">
+
+	<div class="grid-view-item">
+    <div class="grid-view-item-image">
+
+      {% comment %}
+        Link to your product with the 'within: collection' filter for the link to be aware of the collection.
+        This allows you to create collection-based navigation on the product page.
+
+        Results of using 'within: collection':
+        - Instead of a URL with /products/product-handle
+          you would get /collections/collection-handle/products/product-handle
+
+        For more info on navigation within a collection
+          - http://docs.shopify.com/support/your-store/collections/how-to-navigate-within-a-collection
+
+      {% endcomment %}
+
+      {% if section.settings.hover-effect and product.media.size > 1 %}
+      <div class="reveal">
+      {% endif %}
+
+      <a href="{{ product.url | within: collection }}" class="grid__image">
+        {% assign image = product.media[0].preview_image %}
+        {% capture props %}
+           style="max-width: {{ image.width }}px"
+        {% endcapture %}
+        {% include 'responsive-image' with image, alt: image.alt, props: props %}
+
+        {% if section.settings.hover-effect and product.media.size > 1 %}
+          <div class="hidden">
+            {% assign image = product.media[1].preview_image %}
+            {% capture props %}
+              style="max-width: {{ image.width }}px"
+            {% endcapture %}
+            {% include 'responsive-image' with image, alt: images.alt, props: props %}
+          </div>
+        {% endif %}
+      </a>
+
+      {% if section.settings.hover-effect and product.media.size > 1 %}
+      </div>
+      {% endif %}
+
+    </div>
+
+    {% if section.settings.quick_shop_enable %}
+      <div class="shop-now-wrapper">
+        <a class="shop-now-button" href="{{ product.url | within: collection }}">{{ 'products.product.quick_shop' | t }}</a>
+      </div>
+    {% endif %}
+
+    <p class="product-grid--title">
+      <a href="{{ product.url | within: collection }}">{{ product.title }}</a>
+    </p>
+    <p class="product-grid--price">
+      {% include 'product-grid-item-price' %}
+    </p>
+
+    {% if product.compare_at_price_max > product.price and product.available and settings.enable-sale-badge %}
+    <div class="sale-badge badge">{{ 'products.product.on_sale' | t }}</div>
+    {% endif %}
+
+    {% unless product.available %}
+        <div class="sold-out-badge badge">{{ 'products.product.sold_out' | t }}</div>
+    {% endunless %}
+
+	</div>
+
+</div>

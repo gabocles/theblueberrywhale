@@ -1,0 +1,18 @@
+<div
+  class="recently-viewed-products clearfix collection"
+  data-product-handle="{{ product.handle }}"
+  data-product-url="{% if routes.root_url != '/' %}{{ routes.root_url }}{% endif %}/products/PLACEHOLDER/?view=grid"
+  style="display: none"
+>
+  <div class="wrapper{% if section.settings.recently_viewed_match_height %} products--match-height{% endif %}" role="main">
+
+   {% unless section.settings.recently_viewed_title == blank %}
+   <div class="sitewide--title-wrapper">
+     <h2 class="page--title">{{ section.settings.recently_viewed_title }}</h2>
+   </div>
+   {% endunless %}
+
+   <div id="recently-viewed-products">
+   </div>
+  </div>
+</div>

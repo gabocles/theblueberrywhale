@@ -1,0 +1,28 @@
+<div class="out-of-stock-form">
+  {% form 'contact' %}
+    {% if form.posted_successfully? %}
+        <div class="accent-text">{{ 'products.product.out_of_stock_success' | t }}</div>
+    {% else %}
+        <div id="notify-me">{{ 'products.product.out_of_stock_html' | t: product: product.title }}</div>
+    {% endif %}
+    {% if form.errors %}
+      <div class="error feedback accent-text">
+        <div class="accent-text">{{ 'products.product.wrong_email' | t }}</div>
+      </div>
+    {% endif %}
+    {% unless form.posted_successfully? %}
+    <div id="notify-me-wrapper" class="clearfix">
+      {% if customer %}
+        <input type="hidden" class="logged-in" value="0">
+        <input type="hidden" name="contact[email]" value="{{ customer.email }}" />
+      {% else %}
+        <input required="required" type="email" name="contact[email]" placeholder="your@email.com" class="styled-input{% if form.errors contains 'email' %} error{% endif %}" value="{{ contact.fields.email }}" />
+      {% endif %}
+      <div>
+        <input type="hidden" name="contact[body]" value="Please notify me when {{ product.title | escape }}, variant: [X] becomes available." />
+      </div>
+      <input class="btn" type="submit" value="{{ 'contact.form.send' | t }}" />
+    </div>
+    {% endunless %}
+  {% endform %}
+</div>

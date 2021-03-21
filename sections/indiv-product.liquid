@@ -1,0 +1,587 @@
+{%- assign product = all_products[section.settings.featured_product] -%}
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+
+<div class="homepage-sections-wrapper homepage-sections-wrapper--white">
+
+<div class="wrapper show-on-scroll product-single" data-section-id="{{ section.id }}">
+
+{% if section.settings.title != blank %}
+  <div class="grid">
+  <div class="grid__item large--five-sixths push--large--one-twelfth homepage-featured-rich-text">
+    <div class="sitewide--title-wrapper">
+      {% if settings.heading_style == 'zigzag' %}<span class="zig-zag-border"></span>{% endif %}
+      <h2 class="homepage-sections--title">{{ section.settings.title | escape }}</h2>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if section.settings.richtext != '' %}
+<div class="grid">
+  <div class="grid__item large--one-half push--large--one-quarter">
+    <div class="homepage-sections--description">{{ section.settings.richtext }}</div>
+  </div>
+</div>
+{% endif %}
+
+<div class="grid" id="product-box" data-section-id="{{ section.id }}">
+
+
+{% capture all_media %}
+  <div class="grid__item large--one-half product-images">
+    {% if product.empty? %}
+      <div class="homepage-sections--indiv-product-slider">
+        <ul class="slides">
+          <li>
+            {{ 'product-1' | append: current | placeholder_svg_tag: 'icon icon--placeholder' }}
+          </li>
+        </ul>
+      </div>
+    {% else %}
+      <div class="homepage-sections--indiv-product-slider">
+        <div class="slides product-images-slider-mobile product-images-slider-desktop product-single__medias">
+          {% assign featured_media = current_variant.featured_media | default: product.featured_media %}
+          {% render 'product-media', product: product, section_id: section.id, featured_media_id: featured_media.id, enable_video_loop: section.settings.enable_video_loop %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endcapture %}
+
+{% if section.settings.image-placement == 'left' %}
+  {{ all_media }}
+{% endif %}
+
+<div class="grid__item large--one-half">
+
+  {% if settings.enable-sale-badge %}
+    <div class="product-page--sale-badge{% unless product.compare_at_price_max > current_variant.price %} hide{% endunless %}">
+      {{ 'products.product.on_sale' | t }}
+    </div>
+  {% endif %}
+
+    <section class="product-details-wrapper">
+
+      <div class="product-details--form-wrapper{% unless section.settings.show_product_description %} product-details--form-wrapper--no-description{% endunless %}">
+
+    {% if section.settings.show-vendor %}
+      <div class="indiv-product-vendor-text">{{ product.vendor }}</div>
+    {% endif %}
+
+    {% if product.empty? %}
+      <h1 class="product-details-product-title">{{ 'general.onboarding.product_title' | t }}</h1>
+    {% else %}
+      <a href="{{ product.url | within: collection }}">
+        <h1 class="product-details-product-title">{{ product.title }}</h1>
+      </a>
+    {% endif %}
+
+    {% if section.settings.show_reviews %}
+      <span class="shopify-product-reviews-badge" data-id="{{ product.id }}"></span>
+    {% endif %}
+
+      {% unless product.empty? %}
+
+          {% if product.available %}
+
+          <div class="form-vertical">
+          {% form 'product', product, id: "AddToCartForm" %}
+
+          <p id="ComparePrice">
+            {% if current_variant.compare_at_price > current_variant.price %}
+              <span class="money">{{ current_variant.compare_at_price | money }}</span>
+            {% endif %}
+          </p>
+          {% case section.settings.show_discount %}
+
+            {% when 'percentage' %}
+
+              <li class="product-page--pricing--discount">
+                <span class="variant-percentage-wrapper{% unless on_sale %} hide{% endunless %}">
+                  -<span class="variant-percentage">{{ current_variant.compare_at_price | minus: current_variant.price | times: 100.0 | divided_by: current_variant.compare_at_price | money_without_currency | times: 100 | remove: '.0'}}%</span>
+                </span>
+              </li>
+
+            {% when 'value' %}
+
+              <li class="product-page--pricing--discount">
+                  <span class="variant-value-wrapper{% unless on_sale %} hide{% endunless %}">
+                    -<span class="variant-value"><span class="money">{{ current_variant.compare_at_price | minus: current_variant.price | money }}</span></span>
+                  </span>
+              </li>
+
+          {% endcase %}
+
+          <span class="h2 js" id="ProductPrice"><span class="money">{{ current_variant.price | money }}</span></span>
+
+          {% include 'unit-price-measurement-variant', variant: current_variant %}
+
+          {%- if shop.taxes_included or shop.shipping_policy.body != blank -%}
+            <div class="product-page__policies rte">
+              {%- if shop.taxes_included -%}
+                {{ 'products.product.include_taxes' | t }}
+              {%- endif -%}
+              {%- if shop.shipping_policy.body != blank -%}
+                {{ 'products.product.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+            <div class="row homepage-sections--indiv-product-slider-variants">
+
+              {% assign hide_default_title = false %}
+              {% if product.variants.size == 1 and product.variants.first.title contains 'Default' %}
+                {% assign hide_default_title = true %}
+              {% endif %}
+
+              {% if product.variants.size > 0  %}
+
+                {% if section.settings.product_variant_style == 'dropdowns' %}
+
+                  {% for option in product.options_with_values %}
+                    <div class="selector-wrapper{% if hide_default_title == true %} hide{% endif %}">
+                      <wetheme-dropdown>
+                        <label for="SingleOptionSelector-{{ forloop.index0 }}">{{ option.name }}</label>
+                        <select class="form-control" id="SingleOptionSelector-{{ forloop.index0 }}">
+                            {% for value in option.values %}
+                              <option {% if option.selected_value == value %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                      </wetheme-dropdown>
+                    </div>
+                  {% endfor %}
+
+                {% else %}
+
+                  {% for option in product.options %}
+                    {% include 'swatch' with option %}
+                  {% endfor %}
+
+                {% endif %}
+
+              {% endif %}
+
+              <select name="id" id="ProductSelect-{{ section.id }}" data-section="{{ section.id }}" class="form-control original-select product-form__variants no-js">
+                {% for variant in product.variants %}
+                  {% if variant.available %}
+                    <option {% if variant == current_variant %} selected="selected" {% endif %} value="{{ variant.id }}">
+                      {{ variant.title }} - <span class="money">{{ variant.price | money }}</span>
+                    </option>
+                  {% else %}
+                    <option disabled="disabled">{{ variant.title }} - {{ 'products.product.sold_out' | t }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+
+              {% if section.settings.show_quantity_selector %}
+                <div class="{% if section.settings.product_variant_style == 'dropdowns' %}selector-wrapper{% else %}swatches-wrapper{% endif %}">
+                  <label for="Quantity">{{ 'products.product.quantity' | t }}</label>
+                  <input type="number" id="Quantity" name="quantity" value="1" min="1" class="quantity-selector">
+                </div>
+              {% endif %}
+
+              <div class="paymentButtonsWrapper">
+                <button type="submit" name="add" id="AddToCart" class="btn{% if section.settings.show_smart_checkout %} add-to-cart--secondary{% endif %}"
+                       data-use-ajax="{% if section.settings.ajax_cart_method == 'page' %}false{% else %}true{% endif %}">
+                    <span id="AddToCartText">{{ 'products.product.add_to_cart' | t }}</span>
+                </button>
+                {% if section.settings.show_smart_checkout %}
+                  {{ form | payment_button }}
+                {% endif %}
+              </div>
+
+              </div>
+
+          {% endform %}
+          </div>
+
+
+          {% else %}
+
+          <div>
+
+            <div class="product-out-of-stock"><h4>{{ 'products.product.sold_out' | t }}</h4></div>
+
+          </div>
+
+          {% endif %}
+
+        {% else %}
+
+
+                  {% if section.settings.show_reviews %}
+                          <span class="spr-badge" id="spr_badge_7826197321" data-rating="5.0">
+
+                  <span class="spr-starrating spr-badge-starrating"><i class="spr-icon spr-icon-star" style=""></i><i class="spr-icon spr-icon-star" style=""></i><i class="spr-icon spr-icon-star" style=""></i><i class="spr-icon spr-icon-star" style=""></i><i class="spr-icon spr-icon-star" style=""></i></span>
+
+
+                  <span class="spr-badge-caption">
+
+                  1 review
+
+                  </span>
+                  </span>
+                  {% endif %}
+
+          <span id="ProductPrice" class="h2 custom-font"><span class="money">{{ 1699 | money }}</span></span>
+
+          <div class="onboarding--sold-out">
+            <a class="btn btn-success custom-font">
+                {{ 'products.product.sold_out' | t }}
+            </a>
+          </div>
+        {% endunless %}
+
+      </div>
+
+          {% if section.settings.show_product_description %}
+            <div class="product-description rte">
+              {% unless product.empty? %}
+                {{ product.description }}
+              {% else %}
+                {{ 'general.onboarding.product_description' | t }}
+              {% endunless %}
+            </div>
+          {% endif %}
+
+        </div>
+
+        {% if section.settings.image-placement == 'right' %}
+          {{ all_media }}
+        {% endif %}
+
+</div>
+
+</section>
+
+</div>
+
+</div>
+
+{% unless product.empty? %}
+<script type="application/json" id="ProductJson-{{ section.id }}">
+  {{ product | json }}
+</script>
+{% endunless %}
+
+{% schema %}
+{
+    "name": {
+        "en": "Featured product",
+        "de": "Vorgestelltes Produkt",
+        "es": "Producto destacado",
+        "fr": "Produit en vedette",
+        "pt-PT": "Produto em destaque"
+    },
+    "class": "homepage-section--indiv-product-wrapper",
+    "settings": [
+        {
+            "type": "text",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Featured product",
+                "de": "Vorgestelltes Produkt",
+                "es": "Producto destacado",
+                "fr": "Produit en vedette",
+                "pt-PT": "Produto em destaque"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "richtext",
+            "label": {
+                "en": "Description",
+                "de": "Beschreibung",
+                "es": "Descripción",
+                "fr": "Description",
+                "pt-PT": "Descrição"
+            },
+            "info": {
+                "en": "Optional",
+                "de": "Optional",
+                "es": "Opcional",
+                "fr": "Facultatif",
+                "pt-PT": "Opcional"
+            }
+        },
+        {
+            "type": "product",
+            "id": "featured_product",
+            "label": {
+                "en": "Product",
+                "de": "Produkt",
+                "es": "Producto",
+                "fr": "Produit",
+                "pt-PT": "Produto"
+            }
+        },
+        {
+            "type": "radio",
+            "id": "product_variant_style",
+            "label": {
+                "en": "Product variant style",
+                "de": "Produkt Variante Stil",
+                "es": "Variante de estilo del producto",
+                "fr": "Style de la variante du produit",
+                "pt-PT": "Estilo da variante de produtos"
+            },
+            "options": [
+                {
+                    "value": "dropdowns",
+                    "label": {
+                        "en": "Dropdowns",
+                        "de": "Drop-down-Menüs",
+                        "es": "Menú desplegable",
+                        "fr": "Menus déroulants",
+                        "pt-PT": "Pendentes"
+                    }
+                },
+                {
+                    "value": "swatches",
+                    "label": {
+                        "en": "Swatches",
+                        "de": "Muster",
+                        "es": "Muestras",
+                        "fr": "Échantillons",
+                        "pt-PT": "Amostras"
+                    }
+                }
+            ],
+            "default": "dropdowns",
+            "info": {
+                "en": "You may need to upload custom swatch images. [Learn more](https://flowdocs.wetheme.com/faqs/color-swatch-images)",
+                "de": "Es könnte sein, dass Sie kundenspezifische Musterbilder hochladen müssen. [Mehr erfahren](https://flowdocs.wetheme.com/faqs/color-swatch-images)",
+                "es": "Puede que necesite subir imágenes de muestra personalizadas. [Aprenda más](https://flowdocs.wetheme.com/faqs/color-swatch-images)",
+                "fr": "Il se peut que vous ayez besoin de télécharger des images d'échantillons personnalisées. [En savoir plus](https://flowdocs.wetheme.com/faqs/color-swatch-images)",
+                "pt-PT": "Poderá ser necessário carregar imagens de amostra personalizadas. [Saber mais](https://flowdocs.wetheme.com/faqs/color-swatch-images)"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "show-vendor",
+            "label": {
+                "en": "Show vendor",
+                "de": "Verkäufer anzeigen",
+                "es": "Mostrar vendedor",
+                "fr": "Afficher le vendeur",
+                "pt-PT": "Mostrar vendedor"
+            },
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "show_product_description",
+            "label": {
+                "en": "Show product description",
+                "de": "Produktbezeichnung anzeigen",
+                "es": "Mostrar la descripción del producto",
+                "fr": "Afficher la description du produit",
+                "pt-PT": "Mostrar descrição do produto"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "show_quantity_selector",
+            "label": {
+                "en": "Show quantity selector",
+                "de": "Anzahlauswähler anzeigen",
+                "es": "Mostrar selector de cantidad",
+                "fr": "Afficher le sélecteur de quantité",
+                "pt-PT": "Mostrar selecionador de quantidade"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "show_smart_checkout",
+            "label": {
+                "en": "Show dynamic checkout button",
+                "de": "Dynamischen Bezahlbutton anzeigen",
+                "es": "Mostar el botón de compra dinámica",
+                "fr": "Afficher le bouton de paiement dynamique",
+                "pt-PT": "Mostrar botão de checkout dinâmico"
+            },
+            "default": true,
+            "info": {
+                "en": "Lets customers check out directly using a familiar payment method. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+                "de": "Lässt Kunden direkt unter Verwendung einer bekannten Zahlungsmethode bezahlen. [Mehr erfahren](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+                "es": "Permita a los clientes finalizar su compra directamente utilizando un método de pago que les sea familiar. [Aprenda más](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+                "fr": "Permet aux clients de payer directement en utilisant un mode de paiement familier. [En savoir plus](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+                "pt-PT": "Permita que os clientes façam checkout diretamente utilizando um método de pagamento familiar. [Saber mais](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)"
+            }
+        },
+        {
+            "type": "select",
+            "id": "show_discount",
+            "label": {
+                "en": "Enable discount savings?",
+                "de": "Rabattersparnisse aktivieren?",
+                "es": "¿Habilitar ahorros por descuentos?",
+                "fr": "Permettre des économies de rabais ?",
+                "pt-PT": "Ativar promoções?"
+            },
+            "options": [
+                {
+                    "value": "hide",
+                    "label": {
+                        "en": "Hide",
+                        "de": "Verbergen",
+                        "es": "Ocultar",
+                        "fr": "Cacher",
+                        "pt-PT": "Ocultar"
+                    }
+                },
+                {
+                    "value": "percentage",
+                    "label": {
+                        "en": "Percentage",
+                        "de": "Prozentsatz",
+                        "es": "Porcentaje",
+                        "fr": "Pourcentage",
+                        "pt-PT": "Percentagem"
+                    }
+                },
+                {
+                    "value": "value",
+                    "label": {
+                        "en": "Value",
+                        "de": "Wert",
+                        "es": "Valor",
+                        "fr": "Valeur",
+                        "pt-PT": "Valor"
+                    }
+                }
+            ],
+            "default": "percentage",
+            "info": {
+                "en": "Discounts will only be shown on variants that are on sale",
+                "de": "Rabatte werden nur auf Varianten angezeigt, die im Angebot sind",
+                "es": "Los descuentos solo se mostrarán en las variantes que están de oferta.",
+                "fr": "Les remises ne s'appliqueront qu'aux variantes en vente.",
+                "pt-PT": "Os descontos apenas serão exibidos em variantes que estejam à venda"
+            }
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Media",
+                "de": "Medien",
+                "es": "Medios",
+                "fr": "Médias",
+                "pt-PT": "Media"
+            },
+            "info": {
+                "en": "Learn more about [media types](https://help.shopify.com/en/manual/products/product-media)",
+                "de": "Mehr erfahren über [Medientypen](https://help.shopify.com/en/manual/products/product-media)",
+                "es": "Obtenga más información sobre [tipos de medios](https://help.shopify.com/en/manual/products/product-media)",
+                "fr": "En savoir plus sur [types de médias](https://help.shopify.com/en/manual/products/product-media)",
+                "pt-PT": "Saiba mais sobre [tipos de media](https://help.shopify.com/en/manual/products/product-media)"
+            }
+        },
+        {
+            "type": "radio",
+            "id": "image-placement",
+            "label": {
+                "en": "Position",
+                "de": "Position",
+                "es": "Posición",
+                "fr": "Position",
+                "pt-PT": "Posição"
+            },
+            "options": [
+                {
+                    "value": "left",
+                    "label": {
+                        "en": "Left",
+                        "de": "Links",
+                        "es": "Izquierda",
+                        "fr": "Gauche",
+                        "pt-PT": "Esquerda"
+                    }
+                },
+                {
+                    "value": "right",
+                    "label": {
+                        "en": "Right",
+                        "de": "Rechts",
+                        "es": "Derecha",
+                        "fr": "Droite",
+                        "pt-PT": "Direita"
+                    }
+                }
+            ],
+            "default": "left"
+        },
+        {
+            "type": "checkbox",
+            "id": "enable_video_loop",
+            "label": {
+                "en": "Enable video looping",
+                "de": "Videoschleife erlauben",
+                "es": "Habilitar bucle de vídeo",
+                "fr": "Activer la boucle vidéo",
+                "pt-PT": "Ativar loop de vídeo"
+            },
+            "default": false
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Reviews",
+                "de": "Bewertungen",
+                "es": "Opiniones",
+                "fr": "Commentaires",
+                "pt-PT": "Opiniões"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "show_reviews",
+            "label": {
+                "en": "Enable",
+                "de": "Aktivieren",
+                "es": "Habilitar",
+                "fr": "Activer",
+                "pt-PT": "Ativar efeito de paralaxe"
+            },
+            "default": false
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "en": "You will need to install Shopify's [Product Reviews app](https://apps.shopify.com/product-reviews) before enabling this option.",
+                "de": "Sie müssen Shopifys [Produktbewertungen-App](https://apps.shopify.com/product-reviews) installieren, um diese Option aktivieren zu können.",
+                "es": "Necesitará instalar la aplicación de Shopify [Product Reviews app](https://apps.shopify.com/product-reviews) antes de habilitar esta opción.",
+                "fr": "Vous devrez installer Shopify's [application de commentaires de produits](https://apps.shopify.com/product-reviews) avant d'activer cette option.",
+                "pt-PT": "Terá de instalar a [aplicação de Avaliações de Produtos](https://apps.shopify.com/product-reviews) da Shopify antes de ativar esta opção."
+            }
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Featured product",
+                "de": "Vorgestelltes Produkt",
+                "es": "Producto destacado",
+                "fr": "Produit en vedette",
+                "pt-PT": "Produto em destaque"
+            },
+            "category": {
+                "en": "Products",
+                "de": "Produkte",
+                "es": "Productos",
+                "fr": "Produits",
+                "pt-PT": "Produtos"
+            }
+        }
+    ]
+}
+{% endschema %}

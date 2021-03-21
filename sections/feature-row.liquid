@@ -1,0 +1,493 @@
+{% case section.settings.colors %}
+  {% when 'white' %}
+    {%- assign color_scheme = 'homepage-sections-wrapper--white' -%}
+  {% when 'light' %}
+    {%- assign color_scheme = 'homepage-sections-wrapper--light' -%}
+  {% when 'accent' %}
+    {%- assign color_scheme = 'homepage-sections-wrapper--accent' -%}
+  {% when 'dark' %}
+    {%- assign color_scheme = 'homepage-sections-wrapper--dark' -%}
+{% endcase %}
+
+{% case section.settings.image_width %}
+  {% when 'small' %}
+    {%- assign section_image_width = 'large--one-half' -%}
+    {%- assign section_text_width = 'large--one-half' -%}
+  {% when 'large' %}
+    {%- assign section_image_width = 'large--three-quarters' -%}
+    {%- assign section_text_width = 'large--one-quarter' -%}
+{% endcase %}
+
+<div class="homepage-sections-wrapper {{ color_scheme }} {% unless section.settings.text_overlapping_image %}feature-row--no-overlapping{% endunless %}">
+
+  <style>
+    {% if settings.heading_style == 'underline' %}
+      @media screen and (min-width: 768px) {
+        .homepage-featured-content-box-inner .sitewide--title-wrapper:not(.header-style--ignore-all) .homepage-sections--title:after {
+          {% if section.settings.text_alignment == 'left' %}
+            right: auto;
+          {% elsif section.settings.text_alignment == 'right' %}
+            left: auto;
+          {% endif %}
+        }
+      }
+    {% endif %}
+
+    {% if section.settings.image != blank %}
+      {% capture selector %}.homepage-content--{{ section.id }} .img{% endcapture %}
+      {% include 'responsive-background-image' with section.settings.image, selector: selector %}
+
+      .homepage-content--{{ section.id }} .img {
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+    {% endif %}
+
+    .homepage-content--{{ section.id }} .img,
+    .homepage-content--{{ section.id }} .img .icon--placeholder {
+        height: {{ section.settings.image_height }};
+      }
+
+      @media only screen and (min-width: 768px) {
+          .homepage-content--{{ section.id }} .rellax.img {
+              height: {{ section.settings.image_height | remove:'vw' | times:1.5 | append:'vw' }};
+              margin-top: {{ section.settings.image_height | remove:'vw' | times:-0.25 | append:'vw' }};
+          }
+          .homepage-content--{{ section.id }} .img .icon--placeholder {
+              height: {{ section.settings.image_height | remove:'vw' | times:1.5 | append:'vw' }};
+          }
+      }
+
+    .parallax.parallax--{{ section.id }} {
+      height: {{ section.settings.image_height }};
+    }
+
+    @media only screen and (min-width: 768px) {
+      .feature-row__text-alignment--left .homepage-featured-box-btn {
+        float: left;
+      }
+
+      .feature-row__text-alignment--right .homepage-featured-box-btn {
+        float: right;
+      }
+
+      .feature-row__text-alignment--center .homepage-featured-box-btn {
+        float: none;
+      }
+    }
+
+  </style>
+
+  {% capture image_layout %}
+    <div class="grid__item {{ section_image_width }} homepage-content--image homepage-content--{{ section.id }}{% if settings.ken_burns_enabled %} kb-enabled{% endif %}">
+        <div class="{% if section.settings.parallax %} parallax parallax--{{ section.id }}{% endif %}">
+      {% if section.settings.image != blank %}
+          <div id="rellax--{{ section.id }}" class="img parallax-img{% if section.settings.parallax %} rellax{% endif %}" data-rellax-percentage="0.5" data-rellax-speed="-4"></div>
+      {% else %}
+          <div id="rellax--{{ section.id }}" class="placeholder-background img{% if section.settings.parallax %} rellax{% endif %}" data-rellax-percentage="0.5" data-rellax-speed="-4">
+                {{ 'lifestyle-1' | placeholder_svg_tag: 'icon icon--placeholder' }}
+          </div>
+      {% endif %}
+        </div>
+    </div>
+  {% endcapture %}
+
+  <div class="wrapper">
+
+    <div class="homepage-indiv-section-wrapper grid--full homepage-featured-content-wrapper feature-row__text--{{ section.settings.layout }} feature-row__text-alignment--{{ section.settings.text_alignment }}">
+
+    	{% if section.settings.layout == 'left' %}
+    	  {{ image_layout }}
+    	{% endif %}
+
+    	<div class="grid__item feature_row__image_wrapper {% if section.settings.text_overlapping_image %} homepage-featured-content-box{% else %} {{ section_text_width }}{% endif %}{% if section.settings.text_overlapping_image and section.settings.image_width == 'small' %} homepage-featured-content-box--large{% endif %}">
+
+        {% if section.settings.title != blank or section.settings.text != blank or section.settings.button_label != blank %}
+
+        {% unless section.settings.text_overlapping_image %}
+          <div class="no-overlap-content-box">
+        {% endunless %}
+
+        <div class="homepage-featured-content-box-inner show-on-scroll">
+
+    			{% if section.settings.title != blank %}
+          <div class="sitewide--title-wrapper">
+    				<h2 class="homepage-sections--title">{{ section.settings.title | escape }}</h2>
+          </div>
+    			{% endif %}
+
+    			{% if section.settings.text != blank %}
+    				<div class="rte featured-row__subtext textarea">{{ section.settings.text }}</div>
+    			{% endif %}
+
+    			{% if section.settings.button_label != blank and section.settings.button_link != blank %}
+    				<div class="clearfix">
+    					<a href="{{ section.settings.button_link }}" class="homepage-featured-box-btn">
+    						{{ section.settings.button_label | escape }}
+    					</a>
+    				</div>
+    			{% endif %}
+
+    		</div>
+
+        {% unless section.settings.text_overlapping_image %}
+          </div>
+        {% endunless %}
+
+        {% endif %}
+
+    	</div>
+
+      {% if section.settings.layout == 'right' %}
+        {{ image_layout }}
+      {% endif %}
+
+    </div>
+
+  </div>
+
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Image with text",
+        "de": "Bild mit Text",
+        "es": "Imagen con texto",
+        "fr": "Image avec texte",
+        "pt-PT": "Imagem com texto"
+    },
+    "class": "image-with-text-wrapper",
+    "settings": [
+        {
+            "type": "select",
+            "id": "colors",
+            "label": {
+                "en": "Color scheme",
+                "de": "Farbschema",
+                "es": "Esquema de colores",
+                "fr": "Palette de couleurs",
+                "pt-PT": "Esquema de cores"
+            },
+            "default": "white",
+            "options": [
+                {
+                    "value": "white",
+                    "label": {
+                        "en": "Minimal",
+                        "fr": "Minimal",
+                        "de": "Minimal",
+                        "es": "Mínimo",
+                        "pt-PT": "Mínimo"
+                    }
+                },
+                {
+                    "value": "light",
+                    "label": {
+                        "en": "Light",
+                        "de": "Licht",
+                        "es": "Luz",
+                        "fr": "Clair",
+                        "pt-PT": "Claro"
+                    }
+                },
+                {
+                    "value": "accent",
+                    "label": {
+                        "en": "Feature",
+                        "de": "Eigenschaft",
+                        "es": "Destacado",
+                        "fr": "Caractéristique",
+                        "pt-PT": "Funcionalidade"
+                    }
+                },
+                {
+                    "value": "dark",
+                    "label": {
+                        "en": "Dark",
+                        "de": "Dunkel",
+                        "es": "Oscuro",
+                        "fr": "Foncé",
+                        "pt-PT": "Escuro"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "image_picker",
+            "id": "image",
+            "label": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "parallax",
+            "label": {
+                "en": "Enable parallax effect",
+                "de": "Parallaxeneffekt aktivieren",
+                "es": "Habilitar efecto de paralaje",
+                "fr": "Activer l'effet parallaxe",
+                "pt-PT": "Ativar efeito de paralaxe"
+            },
+            "default": true,
+            "info": {
+                "en": "Parallax won't be visible on mobile",
+                "de": "Parallax wird auf dem Smartphone nicht angezeigt",
+                "es": "Parallax no estará visible para dispositivos móviles",
+                "fr": "La parallaxe ne sera pas visible sur un mobile",
+                "pt-PT": "A paralaxe não será visível no telemóvel."
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "text_overlapping_image",
+            "label": {
+                "en": "Text overlapping image",
+                "de": "Text überlappt das Bild",
+                "es": "Texto superpuesto sobre imagen",
+                "fr": "Texte chevauchant l'image",
+                "pt-PT": "O texto sobrepõe-se à imagem"
+            },
+            "default": true
+        },
+        {
+            "type": "select",
+            "id": "layout",
+            "label": {
+                "en": "Layout",
+                "de": "Layout",
+                "es": "Diseño",
+                "fr": "Mise en page",
+                "pt-PT": "Apresentação"
+            },
+            "default": "left",
+            "options": [
+                {
+                    "value": "left",
+                    "label": {
+                        "en": "Image on left",
+                        "de": "Bild links",
+                        "es": "Imagen a la izquierda",
+                        "fr": "Image à gauche",
+                        "pt-PT": "Imagem à esquerda"
+                    }
+                },
+                {
+                    "value": "right",
+                    "label": {
+                        "en": "Image on right",
+                        "de": "Bild rechts",
+                        "es": "Imagen a la derecha",
+                        "fr": "Image à droite",
+                        "pt-PT": "Imagem à direita"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "text_alignment",
+            "label": {
+                "en": "Text alignment on desktop",
+                "de": "Textausrichtung auf dem Desktop",
+                "es": "Alineación del texto en escritorio",
+                "fr": "Alignement du texte sur le bureau",
+                "pt-PT": "Alinhamento de texto no ambiente de trabalho"
+            },
+            "default": "center",
+            "options": [
+                {
+                    "value": "left",
+                    "label": {
+                        "en": "Left",
+                        "de": "Links",
+                        "es": "Izquierda",
+                        "fr": "Gauche",
+                        "pt-PT": "Esquerda"
+                    }
+                },
+                {
+                    "value": "center",
+                    "label": {
+                        "en": "Centered",
+                        "de": "Zentriert",
+                        "es": "Centrado",
+                        "fr": "Centré",
+                        "pt-PT": "Centrado"
+                    }
+                },
+                {
+                    "value": "right",
+                    "label": {
+                        "en": "Right",
+                        "de": "Rechts",
+                        "es": "Derecha",
+                        "fr": "Droite",
+                        "pt-PT": "Direita"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "image_width",
+            "label": {
+                "en": "Image width",
+                "de": "Bildbreite",
+                "es": "Ancho de la imagen",
+                "fr": "Largeur de l'image",
+                "pt-PT": "Largura de imagem"
+            },
+            "default": "large",
+            "options": [
+                {
+                    "value": "small",
+                    "label": {
+                        "en": "Small",
+                        "de": "Klein",
+                        "es": "Pequeño",
+                        "fr": "Petite",
+                        "pt-PT": "Pequeno"
+                    }
+                },
+                {
+                    "value": "large",
+                    "label": {
+                        "en": "Large",
+                        "de": "Groß",
+                        "es": "Grande",
+                        "fr": "Grande",
+                        "pt-PT": "Grande"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "image_height",
+            "label": {
+                "en": "Image height",
+                "de": "Bildhöhe",
+                "es": "Altura de la imagen",
+                "fr": "Hauteur de l'image",
+                "pt-PT": "Altura da imagem"
+            },
+            "default": "40vw",
+            "options": [
+                {
+                    "value": "30vw",
+                    "label": {
+                        "en": "Small",
+                        "de": "Klein",
+                        "es": "Pequeño",
+                        "fr": "Petite",
+                        "pt-PT": "Pequeno"
+                    }
+                },
+                {
+                    "value": "40vw",
+                    "label": {
+                        "en": "Medium",
+                        "de": "Mittel",
+                        "es": "Mediano",
+                        "fr": "Moyenne",
+                        "pt-PT": "Médio"
+                    }
+                },
+                {
+                    "value": "50vw",
+                    "label": {
+                        "en": "Large",
+                        "de": "Groß",
+                        "es": "Grande",
+                        "fr": "Grande",
+                        "pt-PT": "Grande"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Share brand or product details",
+                "de": "Marken- oder Produktdetails teilen",
+                "es": "Compartir marca o detalles del producto",
+                "fr": "Partager les infos sur la marque ou le produit",
+                "pt-PT": "Partilhar detalhes da marca ou produto"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "text",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            },
+            "default": {
+                "en": "<p>Pair large text with an image to give focus to your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>",
+                "de": "<p>Fügen Sie langen Texten ein Bild hinzu, um dem Produkt, der Kollektion oder dem Blogpost Ihrer Wahl Fokus zu verleihen. Fügen Sie Details bezüglich der Verfügbarkeit oder dem Stil hinzu oder stellen Sie sogar eine Rezension zur Verfügung.</p>",
+                "es": "<p> Combine texto grande con una imagen para focalizar la atención en su producto, colección o publicación del blog. Añada detalles sobre la disponibilidad, el estilo o, incluso, un comentario. </p>",
+                "fr": "<p>Associez un texte en gros caractères à une image pour mettre en valeur le produit, la collection ou l'article de blog que vous avez choisi. Ajoutez des détails sur la disponibilité et le style ou même fournissez un commentaire.</p>",
+                "pt-PT": "<p>Associe um texto de grandes dimensões a uma imagem para destacar o seu produto, coleção ou publicação no blog de eleição. Acrescente detalhes relativos à disponibilidade, estilo, ou até mesmo uma opinião.</p>"
+            }
+        },
+        {
+            "type": "text",
+            "id": "button_label",
+            "label": {
+                "en": "Button label",
+                "de": "Button-Bezeichnung",
+                "es": "Etiqueta del botón",
+                "fr": "Étiquette du bouton",
+                "pt-PT": "Etiqueta do botão"
+            }
+        },
+        {
+            "type": "url",
+            "id": "button_link",
+            "label": {
+                "en": "Button link",
+                "de": "Buttonlink",
+                "es": "Enlace del botón",
+                "fr": "Lien du bouton",
+                "pt-PT": "Ligação do botão"
+            }
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Image with text",
+                "de": "Bild mit Text",
+                "es": "Imagen con texto",
+                "fr": "Image avec texte",
+                "pt-PT": "Imagem com texto"
+            },
+            "category": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            }
+        }
+    ]
+}
+{% endschema %}

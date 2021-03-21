@@ -1,0 +1,468 @@
+{% case section.settings.colors %}
+  {% when 'white' %}
+    <div class="homepage-sections-wrapper homepage-sections-wrapper--white">
+  {% when 'light' %}
+    <div class="homepage-sections-wrapper homepage-sections-wrapper--light">
+  {% when 'accent' %}
+    <div class="homepage-sections-wrapper homepage-sections-wrapper--accent">
+  {% when 'dark' %}
+    <div class="homepage-sections-wrapper homepage-sections-wrapper--dark">
+{% endcase %}
+
+{%- assign items-per-row = section.settings.items-per-row -%}
+
+  <div class="homepage-collections-background">
+
+    <div class="wrapper show-on-scroll section--{{ section.id }}">
+
+    	<div class="page-width">
+    	  {% if section.settings.title != blank %}
+    	    <div class="sitewide--title-wrapper">
+            {% if settings.heading_style == 'zigzag' %}<span class="zig-zag-border"></span>{% endif %}
+    	      <h2 class="homepage-sections--title">{{ section.settings.title | escape }}</h2>
+    	    </div>
+    	  {% endif %}
+
+        {% if section.settings.richtext != '' %}
+        <div class="grid">
+          <div class="grid__item large--one-half push--large--one-quarter">
+            <div class="homepage-sections--description">{{ section.settings.richtext }}</div>
+          </div>
+        </div>
+        {% endif %}
+
+    	  <div class="collection-grid collection-grid--items-{{ items-per-row }}{% if section.settings.fill-the-area %} expand-grid{% endif %}">
+    	      {% for block in section.blocks %}
+
+            <style>
+              .section--{{ section.id }} .block-section--{{ block.id }} .homepage-collection-grid-item-details--background-gradient,
+              .section--{{ section.id }} .block-section--{{ block.id }} .hover-outer .hover-inner::before {
+                background: -webkit-linear-gradient(top, {{ block.settings.overlay_color | color_modify: 'alpha', 0.3 }} 0%, {{ block.settings.overlay_color | color_modify: 'alpha', 0.8 }} 75%);
+                background: linear-gradient(to bottom, {{ block.settings.overlay_color | color_modify: 'alpha', 0.3 }} 0%, {{ block.settings.overlay_color | color_modify: 'alpha', 0.8 }} 75%);
+              }
+
+              {% unless section.settings.content-position == 'below-image' %}
+              .section--{{ section.id }} .block-section--{{ block.id }} .collection-item__subheading,
+              .section--{{ section.id }} .block-section--{{ block.id }} .collection-item__title {
+                color: {{ block.settings.overlay_font_color }}
+              }
+              {% endunless %}
+
+              {% if section.settings.content-position == 'hover-additional' %}
+                {% if block.settings.subheading != blank %}
+                .section--{{ section.id }} .block-section--{{ block.id }} .collection-item__title:before {
+                    content: '{{ block.settings.subheading }}';
+                }
+                {% endif %}
+
+                {% if block.settings.overlay-btn-text != blank %}
+                .section--{{ section.id }} .block-section--{{ block.id }} .collection-item__title:after {
+                    content: '{{ block.settings.overlay-btn-text }}';
+                }
+                {% endif %}
+              {% endif %}
+            </style>
+
+            {%- assign collection = collections[block.settings.collection] -%}
+            {% capture collection_title %}{{ collection.title | escape }}{% endcapture %}
+
+            {% if collection.empty? %}
+              {% comment %}add default state for collection block in storefront editor{% endcomment %}
+              {% capture collection_title %}{{ 'homepage.onboarding.collection_title' | t }}{% endcapture %}
+            {% else %}
+              {% capture collection_title %}{{ collection.title }}{% endcapture %}
+            {% endif %}
+
+    	        <div class="homepage-collection-grid-item homepage-collection-grid-item--{{ section.settings.content-position }} block-section--{{ block.id }}" {{ block.shopify_attributes }}>
+                <div class="homepage-collection-grid-inner">
+                	<div class="grid-image">
+                		<a href="{% if collection.empty? %}{{ routes.all_products_collection_url }}{% else %}{{ collection.url }}{% endif %}" class="grid-image--centered">
+
+                			{% if collection.empty? %}
+                        {% if block.settings.collection_img %}
+                          {% include 'responsive-image' with block.settings.collection_img, alt: image.alt, class: class %}
+                        {% else %}
+                				  {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+                				  {{ 'collection-' | append: current | placeholder_svg_tag: 'icon icon--placeholder' }}
+                        {% endif %}
+                			{% else %}
+                        {% if block.settings.collection_img %}
+                          {% assign image = block.settings.collection_img %}
+                				{% elsif collection.image %}
+                					{% assign image = collection.image %}
+                				{% elsif collection.products.size > 0 %}
+                					{% assign product = collection.products | first %}
+                					{% assign image = product.media[0].preview_image %}
+                				{% else %}
+                					{% assign image = nil %}
+                				{% endif %}
+
+                				{% if section.blocks.size == 1 %}
+                					{% assign class = 'homepage-collection-grid-image-single' %}
+                				{% else %}
+                					{% assign class = '' %}
+                				{% endif %}
+
+                				{% include 'responsive-image' with image, alt: image.alt, class: class %}
+                			{% endif %}
+
+                		</a>
+                	</div>
+
+                  <div class="homepage-collection-grid-item-details--{{ section.settings.content-position }}{% if block.settings.show-gradient-overlay and section.settings.content-position != 'below-image' %} homepage-collection-grid-item-details--background-gradient{% endif %}">
+                    <div class="collection-item__content">
+                      {% if block.settings.subheading != blank and section.settings.content-position != 'hover-additional' %}
+                        <a href="{{ collection.url }}" class="collection-item__subheading">{{ block.settings.subheading }}</a>
+                      {% endif %}
+                      <a href="{{ collection.url }}" class="collection-item__title">
+                        <h2>{{ collection_title }}</h2>
+                      </a>
+                      {% if block.settings.overlay-btn-text != blank and section.settings.content-position != 'hover-additional' %}
+                        <a href="{{ collection.url }}" class="homepage-featured-box-btn">{{ block.settings.overlay-btn-text }}</a>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                </div>
+
+    	        </div>
+    	      {% endfor %}
+    	  </div>
+
+        {% if section.blocks.size == 0 %}
+          <div class="placeholder-noblocks">
+            {{ 'homepage.onboarding.no_content' | t }}
+          </div>
+        {% endif %}
+
+    	</div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Collection list",
+        "de": "Kollektionsliste",
+        "es": "Lista de colecciones",
+        "fr": "Liste des collections",
+        "pt-PT": "Lista da coleção"
+    },
+    "class": "featured-collections-wrapper",
+    "max_blocks": 9,
+    "settings": [
+        {
+            "type": "select",
+            "id": "colors",
+            "label": {
+                "en": "Color scheme",
+                "de": "Farbschema",
+                "es": "Esquema de colores",
+                "fr": "Palette de couleurs",
+                "pt-PT": "Esquema de cores"
+            },
+            "default": "light",
+            "options": [
+                {
+                    "value": "white",
+                    "label": {
+                        "en": "Minimal",
+                        "fr": "Minimal",
+                        "de": "Minimal",
+                        "es": "Mínimo",
+                        "pt-PT": "Mínimo"
+                    }
+                },
+                {
+                    "value": "light",
+                    "label": {
+                        "en": "Light",
+                        "de": "Licht",
+                        "es": "Luz",
+                        "fr": "Clair",
+                        "pt-PT": "Claro"
+                    }
+                },
+                {
+                    "value": "accent",
+                    "label": {
+                        "en": "Feature",
+                        "de": "Eigenschaft",
+                        "es": "Destacado",
+                        "fr": "Caractéristique",
+                        "pt-PT": "Funcionalidade"
+                    }
+                },
+                {
+                    "value": "dark",
+                    "label": {
+                        "en": "Dark",
+                        "de": "Dunkel",
+                        "es": "Oscuro",
+                        "fr": "Foncé",
+                        "pt-PT": "Escuro"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Featured Collections",
+                "de": "Hervorgehobene Kollektionen",
+                "es": "Colecciones destacadas",
+                "fr": "Collections en vedette",
+                "pt-PT": "Coleções em Destaque"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "richtext",
+            "label": {
+                "en": "Description",
+                "de": "Beschreibung",
+                "es": "Descripción",
+                "fr": "Description",
+                "pt-PT": "Descrição"
+            }
+        },
+        {
+            "type": "range",
+            "id": "items-per-row",
+            "min": 1,
+            "max": 4,
+            "step": 1,
+            "label": {
+              "en": "Products per row",
+              "de": "Produkte pro Zeile",
+              "es": "Productos por fila",
+              "fr": "Produits par ligne",
+              "pt-PT": "Produtos por linha"
+            },
+            "default": 3
+        },
+        {
+             "type": "checkbox",
+             "id": "fill-the-area",
+             "default": true,
+             "label": {
+                "en": "Expand collections to fill space",
+                "de": "Sammlungen erweitern, um Platz zu füllen",
+                "es": "Expandir colecciones para rellenar espacio",
+                "fr": "Développez les collections pour remplir l'espace",
+                "pt-PT": "Expanda as coleções para preencher o espaço"
+             }
+        },
+        {
+            "type": "select",
+            "id": "content-position",
+            "label": {
+                "en": "Title position",
+                "de": "Titel-Position",
+                "es": "Posición del título",
+                "fr": "Position du titre",
+                "pt-PT": "Posição do título"
+            },
+            "default": "hover",
+            "options": [
+                {
+                    "value": "hover",
+                    "label": {
+                        "en": "On hover",
+                        "fr": "Beim Drüberfahren",
+                        "de": "Flotante",
+                        "es": "En survol",
+                        "pt-PT": "A pairar"
+                    }
+                },
+                {
+                    "value": "overlay",
+                    "label": {
+                        "en": "Overlay",
+                        "de": "Überlagerung",
+                        "es": "Superposición",
+                        "fr": "Superposé",
+                        "pt-PT": "Sobreposição"
+                    }
+                },
+                {
+                    "value": "hover-additional",
+                    "label": {
+                        "en": "Additional information on hover",
+                        "de": "Weitere Informationen in der Schwebe",
+                        "es": "Información adicional al pasar por encima",
+                        "fr": "Informations supplémentaires en survolant",
+                        "pt-PT": "Informação adicional no painel flutuante"
+                    }
+                },
+                {
+                    "value": "below-image",
+                    "label": {
+                        "en": "Below image",
+                        "de": "Unteres Bild",
+                        "es": "Debajo de la imagen",
+                        "fr": "Image ci-dessous",
+                        "pt-PT": "Abaixo da imagem"
+                    }
+                }
+            ]
+        }
+    ],
+    "blocks": [
+        {
+            "type": "featured_collection",
+            "name": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colección",
+                "fr": "Collection",
+                "pt-PT": "Coleção"
+            },
+            "settings": [
+                {
+                    "label": {
+                        "en": "Collection",
+                        "de": "Kollektion",
+                        "es": "Colección",
+                        "fr": "Collection",
+                        "pt-PT": "Coleção"
+                    },
+                    "id": "collection",
+                    "type": "collection"
+                },
+          			{
+            				"id": "collection_img",
+            				"type": "image_picker",
+                    "label": {
+                        "en": "Image (Optional)",
+                        "de": "Bild (Optional)",
+                        "es": "Imagen (Opcional)",
+                        "fr": "Image (Facultatif)",
+                        "pt-PT": "Imagem (Opcional)"
+                    },
+                    "info": {
+                        "en": "1600 x 1600px recommended",
+                        "de": "1600 x 1600 px empfohlen",
+                        "es": "Recomendado 1600 x 1600 px",
+                        "fr": "1600 x 1600 px recommandé",
+                        "pt-PT": "1600 x 1600px, recomendado"
+                    }
+          			},
+                {
+                    "type": "text",
+                    "id": "subheading",
+                    "label": {
+                        "en": "Subheading",
+                        "de": "Unterüberschrift",
+                        "es": "Subtítulo",
+                        "fr": "Sous-titre",
+                        "pt-PT": "Subtítulo"
+                    },
+                    "default": {
+                        "en": "Subheading",
+                        "de": "Unterüberschrift",
+                        "es": "Subtítulo",
+                        "fr": "Sous-titre",
+                        "pt-PT": "Subtítulo"
+                    }
+                },
+                {
+            				"type": "text",
+                    "id": "overlay-btn-text",
+                    "label": {
+                        "en": "Button text",
+                        "de": "Buttontext",
+                        "es": "Texto del botón",
+                        "fr": "Texte des boutons",
+                        "pt-PT": "Texto do botão"
+                    },
+            				"default": {
+                        "en": "Shop now",
+                        "de": "Jetzt einkaufen",
+                        "es": "Comprar ahora",
+                        "fr": "Achetez maintenant",
+                        "pt-PT": "Compre agora"
+                    }
+        			   },
+                 {
+                      "type": "checkbox",
+                      "id": "show-gradient-overlay",
+                      "default": true,
+                      "label": {
+                         "en": "Enable overlay gradient",
+                         "de": "Überlagerungsgradienten aktivieren",
+                         "es": "Activar el gradiente de superposición",
+                         "fr": "Activer le dégradé de superposition",
+                         "pt-PT": "Ativar sobreposição de gradiente"
+                      }
+                 },
+                 {
+                     "type": "color",
+                     "id": "overlay_font_color",
+                     "label": {
+                        "en": "Overlay text color",
+                        "de": "Überlagerungstext-Farbe",
+                        "es": "Color del texto de superposición",
+                        "fr": "Couleur du texte de superposition",
+                        "pt-PT": "Cor da sobreposição de texto"
+                     },
+                     "default": "#ffffff"
+                },
+                {
+                     "type": "color",
+                     "id": "overlay_color",
+                     "label": {
+                        "en": "Overlay color",
+                        "de": "Überlagerungsfarbe",
+                        "es": "Color de superposición",
+                        "fr": "Couleur de superposition",
+                        "pt-PT": "Cora da sobreposição"
+                     },
+                     "default": "#323232"
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Collection list",
+                "de": "Kollektionsliste",
+                "es": "Lista de colecciones",
+                "fr": "Liste des collections",
+                "pt-PT": "Lista da coleção"
+            },
+            "category": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colección",
+                "fr": "Collection",
+                "pt-PT": "Coleção"
+            },
+            "blocks": [
+                {
+                    "type": "featured_collection"
+                },
+                {
+                    "type": "featured_collection"
+                },
+                {
+                    "type": "featured_collection"
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

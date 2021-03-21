@@ -1,0 +1,304 @@
+<div class="homepage-sections-wrapper homepage-sections-wrapper--{{ section.settings.colors }}">
+
+    {% assign has_text = false %}
+
+    <div class="grid--center">
+        {% if section.settings.title != blank or section.settings.richtext != '' %}
+        <div class="homepage-hero-content--text-block large--three-quarters">
+                {% if section.settings.title != blank %}
+                    <h2>{{ section.settings.title | escape }}</h2>
+                {% endif %}
+
+                {% if section.settings.richtext != '' %}
+                    {{ section.settings.richtext }}
+                {% endif %}
+            </div>
+            {% assign has_text = true %}
+        {% endif %}
+    </div>
+
+    <div class="grid grid--center">
+
+    <div class="homepage-hero-content--video {% case section.settings.width_classes %}{% when 50 %}grid__item large--one-half{% when 75 %}grid__item large--three-quarters{% when 100 %}grid__item large--one-whole{% endcase %}{% if has_text %} has-text{% else %} no-text{% endif %}">
+
+        <div class="homepage-hero-content-overlay-wrapper homepage-video-content-overlay-wrapper-{{ section.id }}">
+
+            <div class="homepage-hero-content-video-image-block js__hide-on-play">
+
+            </div>
+
+            <div class="homepage-hero-content-video-text-block js__hide-on-play">
+                <div class="homepage-video-play-button" tabindex="0">
+                        <div class="homepage-video-play-button-inner">
+                            <!-- button -->
+                        </div>
+                </div>
+            </div>
+
+            {% if section.settings.url.type == 'youtube' %}
+                <div class="embed-container">
+                    <div class="homepage-hero-youtube-video" id="homepage-hero-youtube-video-{{ section.id }}"
+                         data-homepage-hero-video-link="{{ section.settings.url.id }}"
+                         data-homepage-hero-video-autoplay="{% if section.settings.autoplay %}true{% else %}false{% endif %}"
+                         data-homepage-hero-video-loop="{% if section.settings.loop %}true{% else %}false{% endif %}"
+                         data-homepage-hero-video-mute="{% if section.settings.mute %}true{% else %}false{% endif %}">
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if section.settings.url.type == 'vimeo' %}
+                <div class="embed-container">
+                    <div class="homepage-hero-vimeo-video" id="homepage-hero-vimeo-video-{{ section.id }}"
+                         data-vimeo-id="{{ section.settings.url.id }}"
+                         data-vimeo-autoplay="{% if section.settings.autoplay %}true{% else %}false{% endif %}"
+                         data-vimeo-loop="{% if section.settings.loop %}true{% else %}false{% endif %}"
+                         data-vimeo-width="746"
+                         data-homepage-hero-video-mute="{% if section.settings.mute %}true{% else %}false{% endif %}">
+                    </div>
+                </div>
+
+            {% endif %}
+
+            <style>
+
+                .homepage-video-content-overlay-wrapper-{{ section.id }}::before {
+                    opacity: 0.{{ section.settings.video_overlay_opacity }} !important;
+                }
+
+                {% if section.settings.image %}
+                    {% capture selector %}.homepage-video-content-overlay-wrapper-{{ section.id }} .homepage-hero-content-video-image-block{% endcapture %}
+                    {% include 'responsive-background-image' with section.settings.image, selector: selector %}
+                {% endif %}
+
+            </style>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Video",
+        "de": "Video",
+        "es": "Vídeo",
+        "fr": "Vidéo",
+        "pt-PT": "Vídeo"
+    },
+    "class": "homepage-section--video-wrapper show-on-scroll",
+    "settings": [
+        {
+            "type": "select",
+            "id": "colors",
+            "label": {
+                "en": "Color scheme",
+                "de": "Farbschema",
+                "es": "Esquema de colores",
+                "fr": "Palette de couleurs",
+                "pt-PT": "Esquema de cores"
+            },
+            "default": "white",
+            "options": [
+                {
+                    "value": "white",
+                    "label": {
+                        "en": "Minimal",
+                        "fr": "Minimal",
+                        "de": "Minimal",
+                        "es": "Mínimo",
+                        "pt-PT": "Mínimo"
+                    }
+                },
+                {
+                    "value": "light",
+                    "label": {
+                        "en": "Light",
+                        "de": "Licht",
+                        "es": "Luz",
+                        "fr": "Clair",
+                        "pt-PT": "Claro"
+                    }
+                },
+                {
+                    "value": "accent",
+                    "label": {
+                        "en": "Feature",
+                        "de": "Eigenschaft",
+                        "es": "Destacado",
+                        "fr": "Caractéristique",
+                        "pt-PT": "Funcionalidade"
+                    }
+                },
+                {
+                    "value": "dark",
+                    "label": {
+                        "en": "Dark",
+                        "de": "Dunkel",
+                        "es": "Oscuro",
+                        "fr": "Foncé",
+                        "pt-PT": "Escuro"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "richtext",
+            "label": {
+                "en": "Description",
+                "de": "Beschreibung",
+                "es": "Descripción",
+                "fr": "Description",
+                "pt-PT": "Descrição"
+            },
+            "info": {
+                "en": "Optional",
+                "de": "Optional",
+                "es": "Opcional",
+                "fr": "Facultatif",
+                "pt-PT": "Opcional"
+            }
+        },
+        {
+            "type": "range",
+            "id": "width_classes",
+            "min": 50,
+            "max": 100,
+            "step": 25,
+            "unit": {
+                "en": "%",
+                "de": "%",
+                "es": "%",
+                "fr": "%",
+                "pt-PT": "%"
+            },
+            "label": {
+                "en": "Width",
+                "de": "Breite",
+                "es": "Ancho",
+                "fr": "Largeur",
+                "pt-PT": "Largura"
+            },
+            "default": 75
+        },
+        {
+            "id": "url",
+            "type": "video_url",
+            "label": {
+                "en": "Video URL",
+                "de": "Video-URL",
+                "es": "URL del vídeo",
+                "fr": "URL de la vidéo",
+                "pt-PT": "URL do Vídeo"
+            },
+            "accept": [
+                "youtube",
+                "vimeo"
+            ],
+            "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+        },
+        {
+            "type": "checkbox",
+            "id": "autoplay",
+            "label": {
+                "en": "Autoplay",
+                "de": "Automatische Wiedergabe",
+                "es": "Reproducción automática",
+                "fr": "Lecture automatique",
+                "pt-PT": "Reprodução Automática"
+            },
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "loop",
+            "label": {
+                "en": "Loop",
+                "de": "Schleife",
+                "es": "En bucle",
+                "fr": "Boucle",
+                "pt-PT": "Repetição"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "mute",
+            "label": {
+                "en": "Mute",
+                "de": "Stummschalten",
+                "es": "Silenciar",
+                "fr": "Muet",
+                "pt-PT": "Silenciar"
+            },
+            "default": false
+        },
+        {
+            "type": "image_picker",
+            "id": "image",
+            "label": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            }
+        },
+        {
+            "type": "range",
+            "id": "video_overlay_opacity",
+            "min": 0,
+            "max": 95,
+            "step": 5,
+            "unit": {
+                "en": "%",
+                "de": "%",
+                "es": "%",
+                "fr": "%",
+                "pt-PT": "%"
+            },
+            "label": {
+                "en": "Overlay opacity",
+                "de": "Überlagerungsdeckkraft",
+                "es": "Capacidad de sobrexposición",
+                "fr": "Opacité de superposition",
+                "pt-PT": "Opacidade de sobreposição"
+            },
+            "default": 50
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Video",
+                "de": "Video",
+                "es": "Vídeo",
+                "fr": "Vidéo",
+                "pt-PT": "Vídeo"
+            },
+            "category": {
+                "en": "Video",
+                "de": "Video",
+                "es": "Vídeo",
+                "fr": "Vidéo",
+                "pt-PT": "Vídeo"
+            }
+        }
+    ]
+}
+{% endschema %}

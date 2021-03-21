@@ -1,0 +1,39 @@
+{% if section.settings.sort-by-manual %}
+  {% assign selected_keys = 'manual,' %}
+  {% assign selected_labels = 'featured,' %}
+{% endif %}
+
+{% if section.settings.sort-by-price-ascending %}
+  {% assign selected_keys = selected_keys | append: 'price-ascending,' %}
+  {% assign selected_labels = selected_labels | append: 'price_ascending,' %}
+{% endif %}
+
+{% if section.settings.sort-by-price-descending %}
+  {% assign selected_keys = selected_keys | append: 'price-descending,' %}
+  {% assign selected_labels = selected_labels | append: 'price_descending,' %}
+{% endif %}
+
+{% if section.settings.sort-by-title-ascending %}
+  {% assign selected_keys = selected_keys | append: 'title-ascending,' %}
+  {% assign selected_labels = selected_labels | append: 'az,' %}
+{% endif %}
+
+{% if section.settings.sort-by-title-descending %}
+  {% assign selected_keys = selected_keys | append: 'title-descending,' %}
+  {% assign selected_labels = selected_labels | append: 'za,' %}
+{% endif %}
+
+{% if section.settings.sort-by-created-ascending %}
+  {% assign selected_keys = selected_keys | append: 'created-ascending,' %}
+  {% assign selected_labels = selected_labels | append: 'date_ascending,' %}
+{% endif %}
+
+{% if section.settings.sort-by-created-descending %}
+  {% assign selected_keys = selected_keys | append: 'created-descending,' %}
+  {% assign selected_labels = selected_labels | append: 'date_descending,' %}
+{% endif %}
+
+{% if section.settings.sort-by-best-selling %}
+  {% assign selected_keys = selected_keys | append: 'best-selling,' %}
+  {% assign selected_labels = selected_labels | append: 'best_selling,' %}
+{% endif %}

@@ -1,0 +1,159 @@
+{% if section.settings.show_section == true %}
+  {% case section.settings.colors %}
+    {% when 'white' %}
+      <div class="homepage-sections-wrapper homepage-sections-wrapper--white newsletter--section">
+    {% when 'light' %}
+      <div class="homepage-sections-wrapper homepage-sections-wrapper--light newsletter--section">
+    {% when 'accent' %}
+      <div class="homepage-sections-wrapper homepage-sections-wrapper--accent newsletter--section">
+    {% when 'dark' %}
+      <div class="homepage-sections-wrapper homepage-sections-wrapper--dark newsletter--section">
+  {% endcase %}
+
+    <div class="wrapper show-on-scroll">
+      <div class="grid row--table">
+        <div class="grid__item large--one-half medium--one-half small--one-whole newsletter--section--grid vertical--align">
+
+          <div class="newsletter--section--grid_inner newsletter_title">
+            <h3>{{ section.settings.newsletter_heading }}</h3>
+              {% if section.settings.newsletter_description != empty %}
+                <div class="rte">{{ section.settings.newsletter_description }}</div>
+              {% endif %}
+          </div>
+
+        </div>
+        <div class="grid__item large--one-half medium--one-half small--one-whole newsletter--section--grid vertical--align">
+
+          <div class="newsletter--section--grid_inner newsletter_form_section">
+
+              {% form 'customer' %}
+              {{ form.errors | default_errors }}
+              {% if form.posted_successfully? %}
+                <p class="note form-success success_section">{{ 'general.newsletter_form_section.thanks' | t }}</p>
+              {% else %}
+                <input type="hidden" name="contact[tags]" value="newsletter">
+                <div id="newsletter-wrapper">
+                  <input id="newsletter_text" type="email" value="{% if customer %}{{ customer.email }}{% endif %}" placeholder="{{ 'general.newsletter_form_section.newsletter_text' | t }}" name="contact[email]" class="input-group-field email" aria-label="{{ 'general.newsletter_form_section.newsletter_email' | t }}" autocorrect="off" autocapitalize="off">
+                  <input id="newsletter_submit" type="submit" class="btn btn-default" name="subscribe" value="&#xf054;">
+                </div>
+              {% endif %}
+              {% endform %}
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+{% endif %}
+
+{% schema %}
+{
+    "name": {
+        "en": "Newsletter",
+        "de": "Newsletter",
+        "es": "Boletín de noticias",
+        "fr": "Bulletin d'information",
+        "pt-PT": "Newsletter"
+    },
+    "class": "footer-section--newsletter-wrapper",
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "show_section",
+            "label": {
+                "en": "Show section",
+                "de": "Abschnitt anzeigen",
+                "es": "Mostrar sección",
+                "fr": "Afficher la section",
+                "pt-PT": "Mostrar secção"
+            },
+            "default": false
+        },
+        {
+            "type": "select",
+            "id": "colors",
+            "label": {
+                "en": "Color scheme",
+                "de": "Farbschema",
+                "es": "Esquema de colores",
+                "fr": "Palette de couleurs",
+                "pt-PT": "Esquema de cores"
+            },
+            "default": "light",
+            "options": [
+                {
+                    "value": "white",
+                    "label": {
+                        "en": "Minimal",
+                        "fr": "Minimal",
+                        "de": "Minimal",
+                        "es": "Mínimo",
+                        "pt-PT": "Mínimo"
+                    }
+                },
+                {
+                    "value": "light",
+                    "label": {
+                        "en": "Light",
+                        "de": "Licht",
+                        "es": "Luz",
+                        "fr": "Clair",
+                        "pt-PT": "Claro"
+                    }
+                },
+                {
+                    "value": "accent",
+                    "label": {
+                        "en": "Feature",
+                        "de": "Eigenschaft",
+                        "es": "Destacado",
+                        "fr": "Caractéristique",
+                        "pt-PT": "Funcionalidade"
+                    }
+                },
+                {
+                    "value": "dark",
+                    "label": {
+                        "en": "Dark",
+                        "de": "Dunkel",
+                        "es": "Oscuro",
+                        "fr": "Foncé",
+                        "pt-PT": "Escuro"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "newsletter_heading",
+            "type": "text",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Join our Mailing List",
+                "de": "Melden Sie sich bei unserer Mailingliste an",
+                "es": "Únase a nuestra lista de correo electrónico",
+                "fr": "Inscrivez-vous à notre liste d'envoi",
+                "pt-PT": "Aderir à nossa Lista de E-mails"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "newsletter_description",
+            "label": {
+                "en": "Description",
+                "de": "Beschreibung",
+                "es": "Descripción",
+                "fr": "Description",
+                "pt-PT": "Descrição"
+            }
+        }
+    ]
+}
+{% endschema %}

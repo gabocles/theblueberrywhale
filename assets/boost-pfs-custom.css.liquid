@@ -1,0 +1,59 @@
+/*********************** Custom CSS for Boost Filter & Search  ************************/
+{% assign breakpointMobile = '767px' %}
+{% assign breakpointDesktop = '768px' %}
+{% assign searchBoxMobileHeight = '64px' %}
+
+/**************************** Place your custom css below  ****************************/
+.boost-pfs-filter-top-sorting {
+  margin: 20px 0;
+}
+
+@media screen and (max-width: {{breakpointMobile}}) {
+  .boost-pfs-filter-tree {
+    width: 100%;
+    text-align: left;
+  }
+
+  .boost-pfs-filter-top-sorting {
+    width: 50%;
+  }
+
+  .boost-pfs-filter-top-sorting label {
+    display: none;
+  }
+
+  .filter-menu {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .boost-pfs-filter-tree {
+    width: 50% !important;
+    text-align: left;
+  }
+
+  .search-filter {
+    padding-left: 0px;
+  }
+}
+/**** Custom Search result toolbar ****/
+.boost-pfs-search-result-toolbar {
+  display: flex;
+  align-items: center;
+  margin: 35px 0;
+  border-top: 1px solid #b3b3b3;
+  border-bottom: 1px solid #b3b3b3;
+  white-space: nowrap;
+}
+.boost-pfs-search-result-toolbar .boost-pfs-search-result-item:first-child {
+  flex: auto;
+}
+.boost-pfs-search-result-toolbar .boost-pfs-search-result-panel-controls {
+  padding: 13px 0;
+  margin: 0;
+}
+@media (max-width: {{breakpointMobile}}) {
+  .boost-pfs-search-result-toolbar .boost-pfs-search-total-result {
+    display: none;
+  }
+}

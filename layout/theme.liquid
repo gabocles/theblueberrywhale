@@ -1,0 +1,260 @@
+<!doctype html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if IE 9 ]><html class="ie9 no-js"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+
+  <!-- Basic page needs ================================================== -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="google-site-verification" content="Z3JHC85aeOS1GnmNfaRwaxrGvyJ5-Wg_wiKoPAHOzK8" />
+  
+  {% if settings.favicon != blank %}
+  	  <link rel="shortcut icon" href="{{ settings.favicon | img_url: '180x180', crop: 'center' }}" type="image/png">
+      <link rel="apple-touch-icon" sizes="180x180" href="{{ settings.favicon | img_url: '180x180', crop: 'center'  }}">
+      <link rel="apple-touch-icon-precomposed" sizes="180x180" href="{{ settings.favicon | img_url: '180x180', crop: 'center'  }}">
+      <link rel="icon" type="image/png" sizes="32x32" href="{{ settings.favicon | img_url: '32x32', crop: 'center'  }}">
+      <link rel="icon" type="image/png" sizes="194x194" href="{{ settings.favicon | img_url: '194x194', crop: 'center'  }}">
+      <link rel="icon" type="image/png" sizes="192x192" href="{{ settings.favicon | img_url: '192x192', crop: 'center'  }}">
+      <link rel="icon" type="image/png" sizes="16x16" href="{{ settings.favicon | img_url: '16x16', crop: 'center'  }}">
+  {% endif %}
+
+  <!-- Title and description ================================================== -->
+  <title>
+  {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
+  </title>
+
+  {% if page_description %}
+  <meta name="description" content="{{ page_description | escape }}">
+  {% endif %}
+
+  <!-- Helpers ================================================== -->
+  {% include 'social-meta-tags' %}
+  <link rel="canonical" href="{{ canonical_url }}"/>
+  {% if template contains 'product' %}
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+  {% else %}
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  {% endif %}
+  <meta name="theme-color" content="{{ settings.color_primary }}">
+
+  <!-- CSS ================================================== -->
+  {{ 'plugins.css' | asset_url | stylesheet_tag }}
+  {{ 'timber.scss.css' | asset_url | stylesheet_tag }}
+
+  {% include 'font-links' %}
+
+  <!-- Header hook for plugins ================================================== -->
+  {{ content_for_header }}
+  {% include 'oldIE-js' %}
+
+  <script>
+    window.wetheme = {
+      name: 'Flow',
+    };
+  </script>
+  {{ 'jquery-3.3.1.min.js' | asset_url | script_tag }}
+  {{ 'modernizr.min.js' | asset_url | script_tag }}
+
+  {% comment %}
+    If you store has customer accounts disabled, you can remove the following JS file
+  {% endcomment %}
+  {% if template contains 'customers' %}
+    {{ 'shopify_common.js' | shopify_asset_url | script_tag }}
+  {% endif %}
+
+  
+<script data-ad-client="pub-3408521850993456" async src="https://pagead2.googlesyndication.com/
+pagead/js/adsbygoogle.js"></script>
+  
+
+<!--begin-boost-pfs-filter-css-->
+  {% render 'boost-pfs-style' %}
+<!--end-boost-pfs-filter-css-->
+
+
+</head>
+
+{% comment %}
+  Add the page template as a class for easy page or template specific styling.
+{% endcomment %}
+<body id="{{ page_title | handle }}" class="{% if template == 'page.contact' %}contact-page {% endif %}{% if customer %}customer-logged-in {% endif %}template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}{% unless settings.animations_enabled %} animations-disabled{% endunless %}{% if settings.page_fade_enabled %} page-fade{% endif %}{% if settings.color_body_bg == settings.header-bg-color %} white--match{% endif %}" >
+
+  {% comment %}
+  Cart Drawer might be also used by 'Quick View' and 'LogIn'
+  {% endcomment %}
+  <div id="CartDrawer" class="drawer drawer--right drawer--cart">
+    <div class="drawer__header sitewide--title-wrapper{% if settings.heading_style == 'dotted-line' %} header-style--ignore{% endif %}">
+      <div class="drawer__close js-drawer-close">
+        <button type="button" class="icon-fallback-text">
+          <span class="fallback-text">{{ 'cart.general.close_cart' | t | json }}</span>
+        </button>
+      </div>
+      <div class="drawer__title h2 page--title " id="CartTitle">{{ 'cart.general.title' | t }}</div>
+      <div class="drawer__title h2 page--title hide" id="ShopNowTitle">{{ 'products.product.quick_shop' | t }}</div>
+      <div class="drawer__title h2 page--title hide" id="LogInTitle">{{ 'customer.login.title' | t }}</div>
+      <div class="drawer__title h2 page--title hide" id="SearchTitle">{{ 'general.search.title' | t }}</div>
+    </div>
+    <div id="CartContainer"></div>
+    <div id="ShopNowContainer" class="hide"></div>
+    <div id="SearchContainer" class="hide">
+      <div class="wrapper search-drawer">
+        <div class="input-group">
+          <input type="search" name="q" id="search-input" placeholder="{{ 'general.search.placeholder' | t }}" class="input-group-field" aria-label="{{ 'general.search.placeholder' | t }}" autocomplete="off" />
+          <span class="input-group-btn">
+            <button type="submit" class="btn icon-fallback-text">
+              <i class="fa fa-search"></i>
+              <span class="fallback-text">Search</span>
+            </button>
+          </span>
+        </div>
+        {% include 'live-search-result' %}
+        <script type="text/javascript">
+            var SearchTranslations = {
+                no_results_html: {{ 'general.search.no_results_html' | t | json }},
+                results_for_html: {{ 'general.search.results_for_html' | t | json }},
+                products: {{ 'general.search.products' | t | json }},
+                pages: {{ 'general.search.pages' | t | json }},
+                articles: {{ 'general.search.articles' | t | json }}
+            };
+        </script>
+        <div id="search-results" class="grid-uniform">
+          <!-- here will be the search results -->
+        </div>
+        <a id="search-show-more" href="#" class="btn hide">{{ 'collections.general.see_more' | t }}</a>
+      </div>
+    </div>
+    <div id="LogInContainer" class="hide"></div>
+  </div>
+  <div id="DrawerOverlay"></div>
+
+<div id="PageContainer">
+
+	{% section 'announcement-bar' %}
+
+	{% section 'header' %}
+
+		{% if template == 'index' %}
+
+			<div class="flow-homepage">
+
+		{% else %}
+
+			{% unless template == 'collection' or template contains 'contact' or template == 'list-collections' %}<div class="wrapper main-content">{% endunless %}
+
+		{% endif %}
+
+		{{ content_for_layout }}
+
+		</div>
+
+    {% section 'footer-newsletter' %}
+
+	  {% section 'footer' %}
+
+
+</div>
+
+<script type="text/javascript">
+window.lazySizesConfig = window.lazySizesConfig || {};
+window.lazySizesConfig.rias = window.lazySizesConfig.rias || {};
+
+// configure available widths to replace with the {width} placeholder
+window.lazySizesConfig.rias.widths = [150, 300, 600, 900, 1200, 1500, 1800, 2100];
+
+document.addEventListener('lazyriasmodifyoptions', function (e) {
+    // convert width to width specification for shopify
+    var widthmap = {}
+    var aspect = parseFloat(e.target.dataset.aspectratio); // classList.contains('lazyload-square');
+    var forceHeight = parseInt(e.target.dataset.forceHeight, 10);
+    window.lazySizesConfig.rias.widths.forEach(function (width) {
+        if (forceHeight) {
+            var heightForWidth = width / aspect;
+            var newWidth, newHeight;
+            if (heightForWidth < forceHeight) {
+              newWidth = forceHeight / heightForWidth * width;
+            } else {
+              newWidth = width;
+            }
+            newHeight = newWidth / aspect;
+            widthmap[width] = newWidth.toFixed(0) + 'x' + newHeight.toFixed(0)
+        } else {
+            widthmap[width] = width.toString() + 'x';
+        }
+    });
+    e.detail.widthmap = widthmap;
+});
+</script>
+
+  {{ 'fastclick.min.js' | asset_url | script_tag }}
+  {{ 'plugins.js' | asset_url | script_tag }}
+  {{ 'timber.js' | asset_url | script_tag }}
+
+  <script>
+    window.default_currency_format = {{ shop.money_format | json }};
+    {% if template == 'product' %}
+      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+    {% endif %}
+  </script>
+
+  {{ 'custom.js' | asset_url | script_tag }}
+
+  {% include 'popup' %}
+
+  {% comment %}
+    Template-specific js
+  {% endcomment %}
+  <script>
+    {% if resetPassword %}
+      window.wetheme.$(function() {
+        timber.resetPasswordSuccess();
+      });
+    {% endif %}
+  </script>
+
+  {% comment %}
+    Ajaxify your cart with this plugin.
+    Documentation:
+      - http://shopify.com/timber#ajax-cart
+  {% endcomment %}
+  {{ 'handlebars.min.js' | asset_url | script_tag }}
+  {% include 'ajax-cart-template' %}
+  {{ 'ajax-cart.js' | asset_url | script_tag }}
+    <script>
+      function init() {
+        ajaxCart.init({
+          formSelector: '#AddToCartForm',
+          cartContainer: '#CartContainer',
+          addToCartSelector: '#AddToCart',
+          cartCountSelector: '#CartCount',
+          moneyFormat: {{ shop.money_format | json }},
+        });
+      }
+      window.wetheme.$(init);
+      document.addEventListener('shopify:section:load', init);
+
+      {% if settings.ajax_cart_method == "drawer" %}
+        window.wetheme.$(document.body).on('afterCartLoad.ajaxCart', function(evt, cart) {
+          // Bind to 'afterCartLoad.ajaxCart' to run any javascript after the cart has loaded in the DOM
+          timber.RightDrawer.open();
+        });
+      {% elsif settings.ajax_cart_method == "added" %}
+        window.wetheme.$(document.body).on('beforeAddItem.ajaxCart', function(evt, cart) {
+          // Change the button text temporarily.
+          // console.log(evt)
+          timber.addToCartAdding();
+        });
+        window.wetheme.$(document.body).on('completeAddItem.ajaxCart', function(evt, cart) {
+          // Change the button text back to default.
+          // console.log(evt)
+          timber.addToCartAdded();
+        });
+      {% endif %}
+    </script>
+
+
+<!--begin-boost-pfs-js-->
+  {% render 'boost-pfs' %}
+<!--end-boost-pfs-js-->
+</body>
+</html>

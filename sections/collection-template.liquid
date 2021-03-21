@@ -1,0 +1,735 @@
+{% assign display-total-collection-products-number-rows = section.settings.desktop-products-per-row %}
+{% assign display-total-collection-products-per-row = section.settings.collection-products-per-page %}
+
+{% case section.settings.collection-layout %}
+
+	{% when 'sidebar' %}
+		{% assign display-total-collection-products-total = display-total-collection-products-number-rows | times: display-total-collection-products-per-row %}
+
+	{% when 'feature' %}
+		{% assign display-total-collection-products-total = display-total-collection-products-number-rows | times: display-total-collection-products-per-row | plus:2 %}
+
+	{% when 'grid' %}
+		{% assign display-total-collection-products-total = display-total-collection-products-number-rows | times: display-total-collection-products-per-row %}
+
+{% endcase %}
+
+{% paginate collection.products by display-total-collection-products-total %}
+
+{% if section.settings.show-collection-image %}
+	{% if collection.image != blank %}
+
+		{% if section.settings.collection-image-size == 'original' %}
+
+		  {% include 'responsive-image' with collection.image, alt: collection.title, class: 'collection-page--feature-image' %}
+
+		{% else %}
+
+			<style>
+			  {% if collection.image != blank %}
+				  {% capture selector %}.collection-image .img{% endcapture %}
+				{% include 'responsive-background-image' with collection.image, selector: selector %}
+
+				.collection-image .img {
+				  background-position: center;
+				  background-repeat: no-repeat;
+				  background-size: cover;
+				}
+			  {% endif %}
+
+			  .collection-image .img {
+				height: {{ section.settings.collection-image-size }};
+			  }
+
+			  @media only screen and (min-width: 768px) {
+				.collection-image .rellax.img {
+				  height: {{ section.settings.collection-image-size | remove:'vw' | times:1.5 | append:'vw' }};
+				  margin-top: {{ section.settings.collection-image-size | remove:'vw' | times:-0.6 | append:'vw' }};
+				}
+			  }
+
+			  .parallax.collection-image-parallax {
+				height: {{ section.settings.collection-image-size }};
+			  }
+			</style>
+
+			{% capture image_layout %}
+				<div class="collection-image">
+					<div class="collection-page--feature-image {% if section.settings.parallax %} parallax collection-image-parallax{% endif %}">
+						<div id="rellax--collection-image" class="img{% if section.settings.parallax %} rellax{% endif %}" data-rellax-percentage="0.5"></div>
+					</div>
+				</div>
+			{% endcapture %}
+
+			{{ image_layout }}
+
+		{% endif %}
+	{% else %}
+		<div class="no-collection-img"></div>
+	{% endif %}
+{% endif %}
+
+
+<div class="wrapper main-content">
+  <div class="grid-uniform{% if section.settings.match-height %} products--match-height{% endif %}">
+
+	<div class="grid__item large--one-quarter collection-sidebar-wrapper collection-sidebar-mobile-wrapper{% if collection.description != blank and section.settings.show-collection-description %} sidebar-with-description{% endif %}">
+
+	  <header class="section-header">
+		<div class="sitewide--title-wrapper">
+		  {% if settings.heading_style == 'zigzag' %}<span class="zig-zag-border"></span>{% endif %}
+		  <h1 class="boost-pfs-filter-collection-header page--title">{{ collection.title }}</h1>
+		</div>
+		{% if collection.description != blank and section.settings.show-collection-description %}
+		<div class="boost-pfs-filter-collection-description rte rte--header collection-sidebar__description">
+		  {{ collection.description }}
+		</div>
+		{% endif %}
+	  </header>
+
+	  <div class="sitewide--title-wrapper">
+		<div class="filter-menu filter-selected-{{ collection.handle }}">                    
+		  {% if section.settings.collection-show-sort-by %}
+		  <div class="boost-pfs-filter-top-sorting"></div>
+		  {% endif %}
+		  <div class="boost-pfs-filter-tree boost-pfs-filter-tree-v" data-is-desktop>{% include 'boost-pfs-filter-skeleton', type: 'filter-tree'  %}</div>
+		  <div class="boost-pfs-filter-tree boost-pfs-filter-tree-mobile-button">{% include 'boost-pfs-filter-skeleton', type: 'button' %}</div>
+		  <div class="boost-pfs-filter-tree boost-pfs-filter-tree-v" data-is-mobile></div>
+		</div>        
+	  </div>
+	</div>
+
+	<div class="grid__item large--three-quarters collection-main-body">
+
+	  	{% case section.settings.desktop-products-per-row %}
+			{% when 2 %}
+				{% assign desktop_item_width = 'large--one-half wow fadeInUp' %}
+			{% when 3 %}
+				{% assign desktop_item_width = 'large--one-third wow fadeInUp' %}
+			{% when 4 %}
+				{% assign desktop_item_width = 'large--one-quarter wow fadeInUp' %}
+			{% when 5 %}
+				{% assign desktop_item_width = 'large--one-fifth wow fadeInUp' %}
+			{% when 6 %}
+				{% assign desktop_item_width = 'large--one-sixth wow fadeInUp' %}
+		{% endcase %}
+
+		{% case section.settings.tablet-products-per-row %}
+			{% when 2 %}
+				{% assign tablet_item_width = 'medium--one-half' %}
+			{% when 3 %}
+				{% assign tablet_item_width = 'medium--one-third' %}
+			{% when 4 %}
+				{% assign tablet_item_width = 'medium--one-quarter' %}
+		{% endcase %}
+
+		{% case section.settings.mobile-products-per-row %}
+			{% when 1 %}
+				{% assign mobile_item_width = 'small--one-whole' %}
+			{% when 2 %}
+				{% assign mobile_item_width = 'small--one-half' %}
+			{% when 3 %}
+				{% assign mobile_item_width = 'small--one-third' %}
+		{% endcase %}
+		{% assign grid_item_width = desktop_item_width | append: ' ' | append: tablet_item_width | append: ' ' | append: mobile_item_width %}		
+
+		<div class="boost-pfs-filter-products small--grid--full collection-main-body-inner collection-main-body-inner--sidebar" data-bc-sort="{{ collection.default_sort_by }}">
+			
+			{% for product in collection.products %}
+
+			{% unless grid_item_width %}
+				{% assign grid_item_width = 'large--one-third medium--one-half' %}
+			{% endunless %}
+
+			{% assign on_sale = false %}
+			{% if product.compare_at_price > product.price %}
+				{% assign on_sale = true %}
+			{% endif %}
+
+			{% assign sold_out = true %}
+			{% if product.available %}
+				{% assign sold_out = false %}
+			{% endif %}
+
+			<div class="grid__item {{ grid_item_width }}">
+				{% include 'grid-view-item' %}
+			</div>
+
+			{% endfor %}
+
+		</div>
+
+		<div class="boost-pfs-filter-bottom-pagination pagination"></div>
+		<div class="boost-pfs-filter-load-more"></div>
+	</div>
+
+  </div>
+
+</div>
+{% endpaginate %}
+
+{% if section.settings.tags_enable == true and section.settings.collection-show-sort-by == true %}
+	<style>
+		@media only screen and (max-width: 767px) {
+			.collection-sidebar-filter{
+				width: 49%;
+				float: left;
+				padding: 0 10px;
+			}
+			.collection-sidebar-filter-select {
+				width: 100%;
+			}
+		}
+	</style>
+{% endif %}
+
+<script>
+  // Declare boostPFSThemeConfig variable
+  var boostPFSThemeConfig = {
+	label: {
+		sorting: {% assign temp = 'collections.sorting.title' | t  %} {% unless temp contains 'translation missing'  %} {{ temp | json }} {% else %} "Sorting" {% endunless %},
+		sorting_best_selling: {% assign temp = 'collections.sorting.best_selling' | t %} {% unless temp contains 'translation missing'  %} {{ temp | json }} {% else %} "Best Selling" {% endunless %},
+		sorting_featured: {% assign temp = 'collections.sorting.featured' | t %} {% unless temp contains 'translation missing'  %} {{ temp | json }} {% else %} "Featured" {% endunless %},
+		sorting_title_ascending: {% assign temp = 'collections.sorting.az' | t %} {% unless temp contains 'translation missing'  %} {{ temp | json }} {% else %} "Alphabetically, A-Z" {% endunless %},
+		sorting_title_descending: {% assign temp = 'collections.sorting.za' | t %} {% unless temp contains 'translation missing'  %} {{ temp | json }} {% else %} "Alphabetically, Z-A" {% endunless %},
+		sorting_price_ascending: {% assign temp = 'collections.sorting.price_ascending' | t %} {% unless temp contains 'translation missing'  %} {{ temp | json }} {% else %} "Lowest Price" {% endunless %},
+		sorting_price_descending: {% assign temp = 'collections.sorting.price_descending' | t %} {% unless temp contains 'translation missing'  %} {{ temp | json }} {% else %} "Highest Price" {% endunless %},
+		sorting_date_ascending: {% assign temp = 'collections.sorting.date_ascending' | t %} {% unless temp contains 'translation missing'  %} {{ temp | json }} {% else %} "Date, Old to New" {% endunless %},
+		sorting_date_descending: {% assign temp = 'collections.sorting.date_descending' | t %} {% unless temp contains 'translation missing'  %} {{ temp | json }} {% else %} "Date, New to Old" {% endunless %},
+		sorting_sale_descending: {% assign temp = 'collections.sorting.sale_descending' | t %} {% unless temp contains 'translation missing'  %} {{ temp | json }} {% else %} "% Off" {% endunless %},
+		sorting_relevance: {% assign temp = 'collections.sorting.relevance' | t %} {% unless temp contains 'translation missing'  %} {{ temp | json }} {% else %} "Relevance" {% endunless %},
+
+		from_price: {{ 'products.general.from_text' | t | json }},
+		sale_from_price: {{ 'products.product.on_sale_from_html' | t | json }},
+		on_sale: {{ 'products.product.on_sale' | t | json }},
+		sold_out: {{ 'products.product.sold_out' | t | json }},
+		quick_shop: {{ 'products.product.quick_shop' | t | json }},
+	},
+	custom: {
+		products_per_page: {% if display-total-collection-products-total %} {{ display-total-collection-products-total | json }} {% else %} 24 {% endif %},
+		enable_infinite_scrolling: {% if section.settings.enable_infinite_scrolling %} {{ section.settings.enable_infinite_scrolling | json }} {% else %} false {% endif %},      
+		hover_effect: {% if section.settings.hover-effect %} {{ section.settings.hover-effect | json }} {% else %} false {% endif %},
+		quick_shop_enable: {% if section.settings.quick_shop_enable %} {{ section.settings.quick_shop_enable | json }} {% else %} false {% endif %},
+		show_vendor: {% if section.settings.show-vendor %} {{ section.settings.show-vendor | json }} {% else %} false {% endif %},
+		show_reviews: {% if section.settings.show_reviews %} {{ section.settings.show_reviews | json }} {% else %} false {% endif %},
+		enable_sale_badge: {% if settings.enable-sale-badge %} {{ settings.enable-sale-badge | json }} {% else %} true {% endif %},
+		enable_sold_out_badge: {% if settings.enable-sold-out-badge %} {{ settings.enable-sold-out-badge | json }} {% else %} true {% endif %},
+		grid_item_width: {% if grid_item_width %} {{ grid_item_width | json }} {% else %} 'large--one-third medium--one-half' {% endif %},
+	},
+  };
+</script>
+
+
+{% schema %}
+
+{
+    "name": {
+        "en": "Collection pages",
+        "de": "Kollektionsseiten",
+        "es": "Páginas de colecciones",
+        "fr": "Pages de collection",
+        "pt-PT": "Páginas de coleções"
+    },
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "show-collection-image",
+            "label": {
+                "en": "Show collection image",
+                "de": "Kollektionsbild anzeigen",
+                "es": "Mostar la imagen de la colección",
+                "fr": "Afficher l'image de la collection",
+                "pt-PT": "Mostrar imagem da coleção"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "parallax",
+            "label": {
+                "en": "Enable parallax effect",
+                "de": "Parallaxeneffekt aktivieren",
+                "es": "Habilitar efecto de paralaje",
+                "fr": "Activer l'effet parallaxe",
+                "pt-PT": "Ativar efeito de paralaxe"
+            },
+            "default": true,
+            "info": {
+                "en": "Parallax won't be visible when the 'Collection image size' is set to 'Original'",
+                "de": "Parallax wird nicht angezeigt, wenn die Größe des Kollektionsbilds auf 'Original' eingestellt ist",
+                "es": "Parallax no estará visible cuando el 'Tamaño de la imagen de la colección' se establezca como 'Original'",
+                "fr": "La parallaxe ne sera pas visible lorsque la 'Taille de l'image de la collection' sera réglée sur 'D'origine'.",
+                "pt-PT": "A paralaxe não será visível quando o \"Tamanho da imagem da coleção\" estiver definido como \"Original\""
+            }
+        },
+        {
+            "type": "select",
+            "id": "collection-image-size",
+            "label": {
+                "en": "Collection image size",
+                "de": "Größe des Kollektionsbilds",
+                "es": "Tamaño de la imagen de la colección",
+                "fr": "Taille de l'image de la collection",
+                "pt-PT": "Tamanho da imagem da coleção"
+            },
+            "options": [
+                {
+                    "value": "20vh",
+                    "label": {
+                        "en": "Small",
+                        "de": "Klein",
+                        "es": "Pequeño",
+                        "fr": "Petite",
+                        "pt-PT": "Pequeno"
+                    }
+                },
+                {
+                    "value": "30vh",
+                    "label": {
+                        "en": "Medium",
+                        "de": "Mittel",
+                        "es": "Mediano",
+                        "fr": "Moyenne",
+                        "pt-PT": "Médio"
+                    }
+                },
+                {
+                    "value": "40vh",
+                    "label": {
+                        "en": "Large",
+                        "de": "Groß",
+                        "es": "Grande",
+                        "fr": "Grande",
+                        "pt-PT": "Grande"
+                    }
+                },
+                {
+                    "value": "original",
+                    "label": {
+                        "en": "Original",
+                        "de": "Original",
+                        "es": "Original",
+                        "fr": "D'origine",
+                        "pt-PT": "Original"
+                    }
+                }
+            ],
+            "default": "20vh"
+        },
+        {
+            "type": "select",
+            "id": "collection-layout",
+            "label": {
+                "en": "Layout",
+                "de": "Layout",
+                "es": "Diseño",
+                "fr": "Mise en page",
+                "pt-PT": "Apresentação"
+            },
+            "options": [
+                {
+                    "value": "feature",
+                    "label": {
+                        "en": "Feature",
+                        "de": "Eigenschaft",
+                        "es": "Destacado",
+                        "fr": "Caractéristique",
+                        "pt-PT": "Funcionalidade"
+                    }
+                },
+                {
+                    "value": "sidebar",
+                    "label": {
+                        "en": "Sidebar",
+                        "de": "Seitenleiste",
+                        "es": "Barra lateral",
+                        "fr": "Barre latérale",
+                        "pt-PT": "Barra lateral"
+                    }
+                },
+                {
+                    "value": "grid",
+                    "label": {
+                        "en": "Grid",
+                        "de": "Raster",
+                        "es": "Cuadrícula",
+                        "fr": "Grille",
+                        "pt-PT": "Grelha"
+                    }
+                }
+            ],
+            "default": "sidebar"
+        },
+        {
+            "type": "checkbox",
+            "id": "show-collection-description",
+            "label": {
+                "en": "Show collection description",
+                "de": "Kollektionsbeschreibung anzeigen",
+                "es": "Mostrar descripción de la colección",
+                "fr": "Afficher la description de la collection",
+                "pt-PT": "Mostrar descrição da coleção"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "tags_enable",
+            "label": {
+                "en": "Enable 'Filter'",
+                "de": "Filter' aktivieren",
+                "es": "Habilitar 'Filtrar'",
+                "fr": "Activer le 'Filtre'.",
+                "pt-PT": "Ativar \"Filtro\""
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "collection-show-sort-by",
+            "label": {
+                "en": "Enable 'Sort by'",
+                "de": "Sortieren nach' aktivieren",
+                "es": "Habilitar 'Ordenar por'",
+                "fr": "Activer 'Trier par",
+                "pt-PT": "Ativar \"Ordenar por\""
+            },
+            "default": true
+		},
+		{
+            "type": "header",
+            "content": {
+                "en": "Enable sorting options",
+                "de": "Sortieroptionen aktivieren",
+                "es": "Habilitar opciones de ordenación",
+                "fr": "Activer les Options de tri",
+                "pt-PT": "Ativar opções de triagem"
+            }
+		},
+		{
+            "type": "checkbox",
+            "id": "sort-by-manual",
+            "label": {
+                "en": "Featured",
+                "de": "Ausgewählt",
+                "es": "Destacados",
+                "fr": "En vedette",
+                "pt-PT": "Em Destaque"
+            },
+            "default": true
+		},
+		{
+            "type": "checkbox",
+            "id": "sort-by-price-ascending",
+            "label": {
+                "en": "Price, low to high",
+                "de": "Preis, niedrig nach hoch",
+                "es": "Precio, menor a mayor",
+                "fr": "Prix: faible à élevé",
+                "pt-PT": "Preço, mais baratos"
+            },
+            "default": true
+		},
+		{
+            "type": "checkbox",
+            "id": "sort-by-price-descending",
+            "label": {
+                "en": "Price, high to low",
+                "de": "Preis, hoch nach niedrig",
+                "es": "Precio, mayor a menor",
+                "fr": "Prix: élevé à faible",
+                "pt-PT": "Preço, mais caros"
+            },
+            "default": true
+		},
+		{
+            "type": "checkbox",
+            "id": "sort-by-title-ascending",
+            "label": {
+                "en": "Alphabetically, A-Z",
+                "de": "Alphabetisch, A-Z",
+                "es": "Alfabéticamente, A-Z",
+                "fr": "A-Z",
+                "pt-PT": "Alfabeticamente, A-Z"
+            },
+            "default": true
+		},
+		{
+            "type": "checkbox",
+            "id": "sort-by-title-descending",
+            "label": {
+                "en": "Alphabetically, Z-A",
+                "de": "Alphabetisch, Z-A",
+                "es": "Alfabéticamente, Z-A",
+                "fr": "Z-A",
+                "pt-PT": "Alfabeticamente, Z-A"
+            },
+            "default": true
+		},
+		{
+            "type": "checkbox",
+            "id": "sort-by-created-ascending",
+            "label": {
+                "en": "Date, old to new",
+                "de": "Datum, alt nach neu",
+                "es": "Fecha, antiguo a nuevo",
+                "fr": "Date: ancien à récent",
+                "pt-PT": "Data, mais antigos"
+            },
+            "default": true
+		},
+		{
+            "type": "checkbox",
+            "id": "sort-by-created-descending",
+            "label": {
+                "en": "Date, new to old",
+                "de": "Datum, neu nach alt",
+                "es": "Fecha, nuevo a antiguo",
+                "fr": "Date: récent à ancien",
+                "pt-PT": "Data, mais recentes"
+            },
+            "default": true
+		},
+		{
+            "type": "checkbox",
+            "id": "sort-by-best-selling",
+            "label": {
+                "en": "Best selling",
+                "de": "Meistverkauft",
+                "es": "Más vendidos",
+                "fr": "Meilleurs vendeurs",
+                "pt-PT": "Mais Vendidos"
+            },
+            "default": true
+		},
+        {
+            "type": "header",
+            "content": {
+                "en": "Products per row",
+                "de": "Produkte pro Zeile",
+                "es": "Productos por fila",
+                "fr": "Produits par ligne",
+                "pt-PT": "Produtos por linha"
+            }
+        },
+        {
+            "type": "range",
+            "id": "desktop-products-per-row",
+            "min": 2,
+            "max": 6,
+            "step": 1,
+            "label": {
+                "en": "Desktop",
+                "de": "Desktop",
+                "es": "Escritorio",
+                "fr": "Ordinateur de bureau",
+                "pt-PT": "Ambiente de trabalho"
+            },
+            "default": 4
+        },
+        {
+            "type": "range",
+            "id": "tablet-products-per-row",
+            "min": 2,
+            "max": 4,
+            "step": 1,
+            "label": {
+                "en": "Tablet",
+                "de": "Tablet",
+                "es": "Tablet",
+                "fr": "Tablette",
+                "pt-PT": "Tablet"
+            },
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "mobile-products-per-row",
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "label": {
+                "en": "Mobile",
+                "de": "Mobil",
+                "es": "Móvil",
+                "fr": "Téléphone mobile",
+                "pt-PT": "Telemóvel"
+            },
+            "default": 1
+        },
+        {
+            "type": "range",
+            "id": "collection-products-per-page",
+            "min": 1,
+            "max": 10,
+            "step": 1,
+            "label": {
+                "en": "Number of rows per page",
+                "de": "Anzahl an Zeilen pro Seite",
+                "es": "Número de filas por página",
+                "fr": "Nombre de lignes par page",
+                "pt-PT": "Número de linhas por página"
+            },
+            "default": 4,
+            "info": {
+                "en": "Only applicable to desktop",
+                "de": "Gilt nur für den Desktop",
+                "es": "Solo aplicable a escritorio",
+                "fr": "Ne s'applique qu'aux ordinateurs de bureau",
+                "pt-PT": "Apenas aplicável no ambiente de trabalho"
+            }
+				},
+				{
+					"type": "select",
+					"id": "pagination_options",
+					"label": {
+							"en": "Pagination type",
+							"de": "Seitenzählungsart",
+							"es": "Tipo de paginación",
+							"fr": "Type de pagination",
+							"pt-PT": "Tipo de paginação"
+					},
+					"options": [
+							{
+									"value": "pagination_default",
+									"label": {
+											"en": "Paged navigation",
+											"de": "Seitennummerierte Navigation",
+											"es": "Navegación paginada",
+											"fr": "Navigation paginée",
+											"pt-PT": "Navegação por página"
+									}
+							},
+							{
+									"value": "pagination_infinite_scrolling",
+									"label": {
+											"en": "Infinite scrolling",
+											"de": "Unbegrenztes Scrolling",
+											"es": "Desplazamiento infinito",
+											"fr": "Défilement infini",
+											"pt-PT": "Scrolling infinito"
+									}
+							},
+							{
+									"value": "pagination_load_more",
+									"label": {
+											"en": "Load more button",
+											"de": "Schaltfläche \"Mehr anzeigen\"",
+											"es": "Cargar botón más",
+											"fr": "Charger plus de boutons",
+											"pt-PT": "Botão carregar mais"
+									}
+							}
+					],
+					"default": "pagination_default"
+				},
+        {
+            "type": "checkbox",
+            "id": "quick_shop_enable",
+            "label": {
+                "en": "Enable quick view",
+                "de": "Schnellansicht aktivieren",
+                "es": "Habilitar vista rápida",
+                "fr": "Activer la vue rapide",
+                "pt-PT": "Ativar visualização rápida"
+            },
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "hover-effect",
+            "label": {
+                "en": "Enable hover effect",
+                "de": "Hover-Effekt aktivieren",
+                "es": "Habilitar efecto hover",
+                "fr": "Activer l'effet survol",
+                "pt-PT": "Ativar efeito ao passar o rato"
+            },
+            "default": false,
+            "info": {
+                "en": "Show second product image on hover",
+                "de": "Zweites Produktbild beim Hover anzeigen",
+                "es": "Mostar la segunda imagen del producto al pasar el ratón sobre la imagen",
+                "fr": "Afficher l'image du second produit survolé",
+                "pt-PT": "Mostrar imagem do segundo produto ao passar o rato"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "show-vendor",
+            "label": {
+                "en": "Show vendor",
+                "de": "Verkäufer anzeigen",
+                "es": "Mostrar vendedor",
+                "fr": "Afficher le vendeur",
+                "pt-PT": "Mostrar vendedor"
+            },
+            "default": false
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Auto-height images",
+                "de": "Automatische Bildhöhe",
+                "es": "Altura automática de las imágenes",
+                "fr": "Modifier automatiquement la hauteur des images",
+                "pt-PT": "Configurar automaticamente a altura das imagens"
+            }
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "en": "Set all of your images to be the same height",
+                "de": "Stellen Sie alle Ihre Bilder auf dieselbe Höhe ein",
+                "es": "Configura sus imágenes para que todas tengan la misma altura.",
+                "fr": "Réglez toutes vos images à la même hauteur",
+                "pt-PT": "Configure uma altura para todas as suas imagens"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "match-height",
+            "label": {
+                "en": "Enable auto-height",
+                "de": "Automatische Höhe aktivieren",
+                "es": "Habilitar altura automática",
+                "fr": "Activer la hauteur automatique",
+                "pt-PT": "Ativar configuração automática de altura"
+            },
+            "default": false
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Reviews",
+                "de": "Bewertungen",
+                "es": "Opiniones",
+                "fr": "Commentaires",
+                "pt-PT": "Opiniões"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "show_reviews",
+            "label": {
+                "en": "Enable",
+                "de": "Aktivieren",
+                "es": "Habilitar",
+                "fr": "Activer",
+                "pt-PT": "Ativar efeito de paralaxe"
+            },
+            "default": false
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "en": "You will need to install Shopify's [Product Reviews app](https://apps.shopify.com/product-reviews) before enabling this option.",
+                "de": "Sie müssen Shopifys [Produktbewertungen-App](https://apps.shopify.com/product-reviews) installieren, um diese Option aktivieren zu können.",
+                "es": "Necesitará instalar la aplicación de Shopify [Product Reviews app](https://apps.shopify.com/product-reviews) antes de habilitar esta opción.",
+                "fr": "Vous devrez installer Shopify's [application de commentaires de produits](https://apps.shopify.com/product-reviews) avant d'activer cette option.",
+                "pt-PT": "Terá de instalar a [aplicação de Avaliações de Produtos](https://apps.shopify.com/product-reviews) da Shopify antes de ativar esta opção."
+            }
+        }
+    ]
+}
+{% endschema %}

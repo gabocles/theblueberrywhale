@@ -1,0 +1,19 @@
+{% comment %}
+    Check if the product is on sale and set a variable to be used below.
+{% endcomment %}
+{% assign on_sale = false %}
+{% if product.compare_at_price > product.price %}
+    {% assign on_sale = true %}
+{% endif %}
+
+{% comment %}
+    Check if the product is sold out and set a variable to be used below.
+{% endcomment %}
+{% assign sold_out = true %}
+{% if product.available %}
+    {% assign sold_out = false %}
+{% endif %}
+
+<div class="grid__item">
+    {% include 'grid-view-item' %}
+</div>

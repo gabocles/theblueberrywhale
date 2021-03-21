@@ -1,0 +1,52 @@
+<div class="grid-view-item">
+  <div class="grid-view-item-image">
+
+    {% if section.settings.hover-effect and product.media.size > 1 %}
+      <div class="reveal">
+    {% endif %}
+
+    <a href="{{ product.url | within: collection }}" title="{{product.title}}" class="grid__image grid__image__match">
+      {% assign image = product.media[0].preview_image %}
+      {% capture props %}
+         style="max-width: {{ image.width }}px"
+      {% endcapture %}
+      {% include 'responsive-image' with image, alt: image.alt, props: props %}
+
+      {% if section.settings.hover-effect and product.media.size > 1 %}
+        <div class="hidden">
+          {% assign image = product.media[1].preview_image %}
+          {% capture props %}
+            style="max-width: {{ image.width }}px"
+          {% endcapture %}
+          {% include 'responsive-image' with image, alt: image.alt, props: props %}
+        </div>
+      {% endif %}
+    </a>
+
+    {% if section.settings.hover-effect and product.media.size > 1 %}
+      </div>
+    {% endif %}
+
+
+    {% if section.settings.quick_shop_enable %}
+      <div class="shop-now-wrapper">
+        <a class="shop-now-button" href="{{ product.url | within: collection }}">{{ 'products.product.quick_shop' | t }}</a>
+      </div>
+    {% endif %}
+
+  </div>
+
+  <div class="grid-view-item--desc-wrapper">
+    <div>
+      {% if section.settings.show-vendor %}
+        <div class="product-grid--vendor-text">{{ product.vendor }}</div>
+      {% endif %}
+      <p class="product-grid--title">
+        <a href="{{ product.url | within: collection }}">{{ product.title }}</a>
+      </p>
+      <p class="product-grid--price">
+        {% include 'product-grid-item-price' %}
+      </p>
+    </div>
+  </div>
+</div>
