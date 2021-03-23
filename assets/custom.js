@@ -1120,7 +1120,7 @@ Product.prototype.fix_media_spacing = function (element) {
     if(element) {
         // Add padding for absolutely positioned media above the thumbnails
         var percent = 100 / parseFloat(element.dataset.mediaAspect);
-        var extra_height = (window.ShopifyXR ? 44 : 0) + 20;
+        var extra_height = (window.ShopifyXR ? 44 : 0) + 10;
         this.$media_wrapper.css('padding-top', 'calc(' + percent + '% + ' + extra_height + 'px)');
     }
 }
@@ -3561,5 +3561,21 @@ wetheme.app = new Vue({
     },
 });
 */
+
+$('.seemore').click(function (event) {
+    event.preventDefault();
+    var description = document.querySelector('.product-description');
+
+    if (description.style.height === ''){
+        description.style.height = 'auto';
+    } else if (description.style.height === 'auto'){
+        description.style.height = '';
+    }
+    else{
+        description.style.height = '90px';
+    }
+    $(this).text($(this).text() == 'See less' ? 'See more' : 'See less');
+});
+
 
 })(window.wetheme.$, window.wetheme);

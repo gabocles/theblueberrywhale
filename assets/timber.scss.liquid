@@ -3938,9 +3938,9 @@ input.footer-email-input::-webkit-input-placeholder {
 }
 
 .grid__item .grid-view-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  //width: 100%;
+  height: 450px;
+  object-fit: cover;
   font-family: "object-fit: contain";
 }
 
@@ -4508,6 +4508,10 @@ input.footer-email-input::-webkit-input-placeholder {
 #shopify-section-product-recommendations {
   .product-recommendations__slideshow .grid__item {
     padding: 0 15px;
+
+    .grid-view-item img {
+      height: 320px;
+    }
   }
 
   .owl-nav, .owl-prev, .owl-next {

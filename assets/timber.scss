@@ -2414,6 +2414,7 @@ header{
 
   .site-header__wrapper {
     display: flex;
+    position: relative;
     & > * {
       margin: 0 ($gutter / 2);
     }
@@ -3955,10 +3956,14 @@ input.footer-email-input::-webkit-input-placeholder {
 }
 
 .grid__item .grid-view-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  //width: 100%;
+  height: 450px;
+  object-fit: cover;
   font-family: "object-fit: contain";
+
+  @media screen and (max-width: 600px) {
+    height: 300px;
+  }
 }
 
 .collection-main-body .grid__image img {
@@ -4052,12 +4057,22 @@ input.footer-email-input::-webkit-input-placeholder {
     margin: 0 auto;
   }
 
+  
   li {
     margin-bottom: $gutter;
   }
-
+  
   .product-single__media__thumbnail {
     cursor: pointer;
+
+    img {
+      height: 195px;
+      object-fit: cover;
+
+      @media screen and (max-width: 600px) {
+        height: auto;
+      }
+    }
   }
 
   [data-image-zoom-enable="true"] .media-wrapper {
@@ -4436,6 +4451,14 @@ input.footer-email-input::-webkit-input-placeholder {
 
   .grid__item {
     padding: 0 15px;
+
+    .grid-view-item img {
+      height: 320px;
+
+      @media screen and (max-width: 600px) {
+        height: 150px;
+      }
+    }
   }
 
   .product-grid--title {
@@ -4525,6 +4548,13 @@ input.footer-email-input::-webkit-input-placeholder {
 #shopify-section-product-recommendations {
   .product-recommendations__slideshow .grid__item {
     padding: 0 15px;
+
+    .grid-view-item img {
+      height: 320px;
+      @media screen and (max-width: 600px) {
+        height: 150px;
+      }
+    }
   }
 
   .owl-nav, .owl-prev, .owl-next {
@@ -7149,6 +7179,9 @@ h3.homepage-blog--title{
     overflow: hidden;
     clear: both;
 
+    height: 90px;
+    overflow: hidden;
+
     &.readmore {
       padding-bottom: 20px;
     }
@@ -7171,6 +7204,12 @@ h3.homepage-blog--title{
           );
       }
     }
+  }
+  .fadeText {
+    background: linear-gradient(to bottom, rgba(248, 248, 248,0) 0%, rgba(248, 248, 248,1) 75%);
+    height: 50px;
+    margin-top: -50px;
+    position: relative;
   }
   .read-more-link,
   .read-less-link {

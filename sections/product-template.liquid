@@ -81,6 +81,10 @@
             <div class="product-description product-details--form-wrapper---below rte{% if section.settings.enable_readmore %} readmore closed{% endif %}" itemprop="description">
               {{ product.description }}
             </div>
+
+            <div class="fadeText"></div>
+
+            <a class="seemore add-to-cart--secondary btn" href="#">See more</a>
           {% endif %}
 
           <div itemprop="offers" itemscope itemtype="http://schema.org/Offer" class="product-details--form-wrapper{% if product.available %} product-details--form-wrapper---in-stock{% else %} product-details--form-wrapper---out-of-stock{% endif %}">
