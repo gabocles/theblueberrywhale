@@ -98,7 +98,7 @@ Parameters:
                 {% case media.media_type %}
                     {% when 'image' %}
                         {% capture props %}
-                            style="max-width: {{ media.width }}px"
+                            style="max-width: 100%"
                             id="ProductPhotoImg"
                             data-image-id="{{ media.id }}"
                             data-image-zoom="{{ media | img_url: 'master' }}"
