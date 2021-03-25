@@ -3956,18 +3956,22 @@ input.footer-email-input::-webkit-input-placeholder {
 }
 
 .grid__item .grid-view-item img {
-  //width: 100%;
-  height: 450px;
-  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   font-family: "object-fit: contain";
 
   @media screen and (max-width: 600px) {
     height: 300px;
+    object-fit: cover;
   }
 }
 
 .collection-main-body .grid__image img {
   max-height: 700px;
+
+  height: 345px;
+  object-fit: cover;
 }
 
 .products--match-height .grid__item .grid__image{
@@ -7048,6 +7052,10 @@ h3.homepage-blog--title{
 .homepage-product-grid-wrapper .grid__item{
 	margin-top: 0;
 	margin-bottom: $gutter*1.5;
+
+  .grid-view-item img {
+    height: 375px;
+  }
 }
 
 .homepage-product-grid-wrapper.grid-uniform {
